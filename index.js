@@ -181,6 +181,24 @@ router.post('/lobby', (ctx, next) => {
   ctx.body = {}
 })
 
+//删除
+router.delete('/lobby', (ctx, next) => {
+  console.log('DELETE /lobby')
+  const {user,lobbyId} = ctx.query
+  console.log(ctx.query)
+  var userModel = JSON.parse(user)
+
+  // var lobbyId = ctx.request.body.lobbyId
+  if(user != null && lobbyId != null){
+    var lobbyObj = lobby_service.closeLobby(userModel,lobbyId)
+    if(lobbyObj != null){
+      ctx.body = lobbyObj
+      return
+    }
+  }
+  ctx.body = {}
+})
+
 //加入
 router.post('/lobby/:id', (ctx, next) => {
   console.log('POST /lobby/:id')
