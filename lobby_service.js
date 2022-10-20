@@ -32,7 +32,7 @@ module.exports.createLobby = function(user,lobbyName) {
 module.exports.closeLobby = function(user,lobbyId) { 
     var lobbyObj = lobbyCache[lobbyId];
     if(lobbyObj != null && user.userId == lobbyObj.creater.userId){
-        lobbyCache[lobbyId] = null;
+        delete lobbyCache[lobbyId];
         return lobbyObj;
     }
     return {};
