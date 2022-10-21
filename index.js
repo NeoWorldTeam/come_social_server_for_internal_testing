@@ -110,7 +110,7 @@ router.get('/discord/callback', async ctx => {
     client_id: '1019792433661349918',
     client_secret: 'M0ZmltlMq6yPi15HS2hZ5NJrDu4jOxnq',
     grant_type: 'authorization_code',
-    redirect_uri:'http://r9v04sg7r2k4.ngrok.xiaomiqiu123.top/discord/callback',
+    redirect_uri:'http://45.32.32.246:3000/discord/callback',
     code: code
   }
 
