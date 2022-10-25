@@ -23,7 +23,7 @@ module.exports.createLobby = function(user,lobbyName) {
     lobbyObj.creater = user;
     lobbyObj.player = {};
     lobbyObj.player[user.userId] = user;
-    lobbyObj.roomRealTime = {channelName:"happy", token:"007eJxTYOg6Or/5Yu3eXXuT995Uitlo/EYr5GQCf34j391Xu7qjAs0VGFKTki0NDCyMLQ2MjUySDEws0hINTJONDIH8FEOjZIuwp6HJdYGMDKl13xkYoRDEZ2XISCwoqGRgAADU1iDT"}
+    lobbyObj.roomRealTime = {channelName:"happy", token:"007eJxTYKjbaBqd9sWjdj4vw+ysGxPeqfi6meY/tQ1z55sRbvDrULECQ2pSsqWBgYWxpYGxkUmSgYlFWqKBabKRIZCfYmiUbLEgJjy5PpCRodzjNAMjFIL4rAwZiQUFlQwMAN9PHcc="}
     
     lobbyCache[lobbyId] = lobbyObj;
     return lobbyObj;
