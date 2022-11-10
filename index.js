@@ -147,6 +147,16 @@ router.get('/user/temp', async ctx => {
   ctx.body = user
 })
 
+// 获取声网数据
+router.get('/user/agora', async ctx => {
+  console.log('GET /user/agora')
+  const {token} = ctx.query
+  console.log(ctx.query)
+  let user = user_service.getAgoraInfo(token)
+  ctx.body = user
+})
+
+
 
 
 
