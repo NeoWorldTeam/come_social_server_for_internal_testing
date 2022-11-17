@@ -49,7 +49,8 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
     // let workPath = path.join(process.cwd(), '../nft-tutorial')
     let localPath = process.cwd()
     let nftProjectPath = path.join(localPath, '../csnft')
-    let workPath = "/Users/fuhao/Documents/workspace/ethereum/nft-tutorial"
+    // let workPath = "/Users/fuhao/Documents/workspace/ethereum/nft-tutorial"
+    let workPath = nftProjectPath
     exec('npx hardhat totalSupply --network goerli', { cwd: workPath }, (err, stdout, stderr) => {
         let NFTGeneter = generateNFTList[nftId]
         if(!NFTGeneter) {
