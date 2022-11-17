@@ -20,13 +20,17 @@ function uint8arrayToStringMethod(myUint8Arr){
     return String.fromCharCode.apply(null, myUint8Arr);
 }
 
-function createMetaData(nft_asset_path) {
+function createMetaData(nft_asset_url) {
     let metadata = {}
+    metadata.description = "Come Socail NFT"
+    metadata.external_url = "http://45.32.32.246/uploads/index.html"
+    metadata.name = "XXXXXX"
+    metadata.animation_url = nft_asset_url
     return metadata
 }
 
 //生成NFT
-module.exports.generateNFT = function(userToken,chain_address,metadata){
+module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,metadataPath){
     let {error, data:currentUser} = user_service.getUser(userToken)
     if(error){
         return {error: error, data: null}
@@ -43,6 +47,8 @@ module.exports.generateNFT = function(userToken,chain_address,metadata){
 
     //1. 查询ID
     // let workPath = path.join(process.cwd(), '../nft-tutorial')
+    let localPath = process.cwd()
+    let nftProjectPath = path.join(localPath, '../csnft')
     let workPath = "/Users/fuhao/Documents/workspace/ethereum/nft-tutorial"
     exec('npx hardhat totalSupply --network goerli', { cwd: workPath }, (err, stdout, stderr) => {
         let NFTGeneter = generateNFTList[nftId]
@@ -60,26 +66,33 @@ module.exports.generateNFT = function(userToken,chain_address,metadata){
         }
         NFTGeneter.progress = 30
 
-
+        var mintCommand = "npx hardhat mint"
+        if(chain_address) {
+            mintCommand = mintCommand + " --address " + chain_address
+        }
+        mintCommand += " --network goerli"
         //2. 创建NFT
-        exec('npx hardhat mint --address=${chain_address} --network goerli', { cwd: workPath }, (err, stdout, stderr) => {
+        exec(mintCommand, { cwd: workPath }, (err, stdout, stderr) => {
             if(err) {
                 NFTGeneter.progress = -1
                 return console.error(err);
             }
+            NFTGeneter.progress = 70
             
             //3.创建元数据
-            let nft_asset_path = path.join(__dirname, 'public/uploads/nft/asset/').join(tokenId)
-            let nft_json_path = path.join(__dirname, 'public/uploads/nft/').join(tokenId)
+            let nft_asset_path = localPath + "/app/public/uploads/nft/assets/" + tokenId + ".mp4"
+            let nft_json_path = localPath + "/app/public/uploads/nft/" + tokenId
+            let nft_asset_network = netowrkDomain + "/app/public/uploads/nft/assets/" + tokenId + ".mp4"
+            // let nft_json_network = netowrkDomain + "/app/public/uploads/nft/" + tokenId
             
             //写配置
-            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_path)),  function(err) {
+            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network)),  function(err) {
                 if (err) {
                     NFTGeneter.progress = -1
                     return console.error(err);
                 }
                 //写资源
-                fs.rename(metadata, nft_asset_path, function (err) {
+                fs.rename(metadataPath, nft_asset_path, function (err) {
                     if(err) {
                         NFTGeneter.progress = -1
                         return console.error(err);

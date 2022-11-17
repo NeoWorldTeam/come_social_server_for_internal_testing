@@ -347,10 +347,11 @@ router.post('/cards/nft', async ctx => {
     const {metadata} = ctx.request.files
     if(userToken && userToken != "" && metadata){
       const basename = path.basename(metadata.path)
-      const metadataUrl = `${ctx.origin}/uploads/${basename}`
+      // const metadataUrl = `${ctx.origin}/uploads/${basename}`
+      const domainUrl = ctx.origin
 
       if(!chain_address) chain_address = "0x207be40d18bF12E42A2427C106c1F9198D9A8CC5"
-      let {error,data} = nft_service.generateNFT(userToken,chain_address,metadataUrl)
+      let {error,data} = nft_service.generateNFT(userToken,chain_address,domainUrl,metadata.path)
       if (error) {
         ctx.body = error_back(error)
       }else{
@@ -366,7 +367,7 @@ router.get('/card/nft/progress', async ctx => {
   var {userToken,makeNFTId} = ctx.query
   if(userToken && userToken.trim() != "" && makeNFTId && makeNFTId.trim() != ""){
   
-    let {error,data} = nft_service.queryProgress(makeNFTId)
+    let {error,data} = nft_service.queryMakeNFT(userToken,makeNFTId)
     if (error) {
       ctx.body = error_back(error)
     }else{
