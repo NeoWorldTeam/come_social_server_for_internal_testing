@@ -326,7 +326,7 @@ router.get('/discord/callback', async ctx => {
   console.log('callback...')
 
   // 服务器认证成功，回调带回认证状态code
-  const code = ctx.query.code
+  const {code,state} = ctx.query.code
   const params = {
     client_id: '1006005005066715257',
     client_secret: 'IwViKo5eYRaV0tgwbmmrCcr_GzcT881I',
@@ -336,11 +336,17 @@ router.get('/discord/callback', async ctx => {
   }
 
   console.log('code is ' + code)
+  console.log('state is ' + state)
 
   // 申请令牌token
-  let res = await axios.post('https://discordapp.com/api/oauth2/token', params)
+  let res = await axios.post('https://discord.com/api/oauth2/token', params)
   console.log('res is ' + res)
-  const access_token = querystring.parse(res.data).access_token
+
+  const {access_token,token_type,expires_in,refresh_token,scope} = res.data
+
+
+
+  // const access_token = querystring.parse(res.data).access_token
   console.log('access_token is ' + access_token)
 
   // 根据token获取用户信息
