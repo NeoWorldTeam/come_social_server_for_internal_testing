@@ -25,10 +25,10 @@ const config = {
 const app = new Koa()
 const router = new Router();
 
-
+console.log(path.join(__dirname, 'public'))
 // app.use(koaBodyParser())
 // 加载index.html
-app.use(koaStatic(__dirname + 'public'))
+app.use(koaStatic(path.join(__dirname, 'public')))
 app.use(koaBody({
   // 支持文件格式
   multipart: true,
@@ -39,29 +39,6 @@ app.use(koaBody({
       keepExtensions: true,
   }
 }));
-
-
-// const users = [
-//   {
-//     id: 1,
-//     name: 'tom'
-//   },
-//   {
-//     id: 2,
-//     name: 'jack'
-//   }
-// ]
-// // 用户信息管理api实现query查询
-// router.get('/users', (ctx, next) => {
-//   console.log('GET /users')
-//   const { name } = ctx.query // ?name=tom
-//   // 从数据库中获取数据
-//   let data = users
-//   if (name) {
-//     data = users.filter(u => u.name === name)
-//   }
-//   ctx.body = { ok: 1, data }
-// })
 
 
 
