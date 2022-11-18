@@ -338,32 +338,32 @@ router.get('/discord/callback', async ctx => {
   console.log('code is ' + code)
   console.log('state is ' + state)
 
-  // 申请令牌token
-  let res = await axios.post('https://discord.com/api/oauth2/token', params)
-  console.log('res is ' + res)
+  // // 申请令牌token
+  // let res = await axios.post('https://discord.com/api/oauth2/token', params)
+  // console.log('res is ' + res)
 
-  const {access_token,token_type,expires_in,refresh_token,scope} = res.data
+  // const {access_token,token_type,expires_in,refresh_token,scope} = res.data
 
 
 
-  // const access_token = querystring.parse(res.data).access_token
-  console.log('access_token is ' + access_token)
+  // // const access_token = querystring.parse(res.data).access_token
+  // console.log('access_token is ' + access_token)
 
-  // 根据token获取用户信息
-  // 旧版本
-  // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
-  // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
-  res = await axios.get(`https://discordapp.com/api/users/@me`, {
-    headers: {
-      'Authorization': 'Bearer ' + access_token
-    }
-  })
+  // // 根据token获取用户信息
+  // // 旧版本
+  // // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
+  // // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
+  // res = await axios.get(`https://discordapp.com/api/users/@me`, {
+  //   headers: {
+  //     'Authorization': 'Bearer ' + access_token
+  //   }
+  // })
 
-  // 渲染页面
-  ctx.body = `
-    <h1>Hello ${res.data.login}</h1>
-    <img src="${res.data.avatar_url}" alt="">
-  `
+  // // 渲染页面
+  // ctx.body = `
+  //   <h1>Hello ${res.data.login}</h1>
+  //   <img src="${res.data.avatar_url}" alt="">
+  // `
 })
 
 // // 登录接口
