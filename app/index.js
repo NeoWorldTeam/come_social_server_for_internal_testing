@@ -338,76 +338,37 @@ router.get('/discord/callback', async ctx => {
   console.log('code is ' + code)
   console.log('state is ' + state)
 
-  // // 申请令牌token
-  // let res = await axios.post('https://discord.com/api/oauth2/token', params)
-  // console.log('res is ' + res)
+  // 申请令牌token
+  let res = await axios.post('https://discord.com/api/oauth2/token', querystring.stringify(params))
+  console.log('res is ' + res)
 
-  // const {access_token,token_type,expires_in,refresh_token,scope} = res.data
+  const {access_token,token_type,expires_in,refresh_token,scope} = res.data
 
 
 
-  // // const access_token = querystring.parse(res.data).access_token
-  // console.log('access_token is ' + access_token)
+  // const access_token = querystring.parse(res.data).access_token
+  console.log('access_token is ' + access_token)
 
-  // // 根据token获取用户信息
-  // // 旧版本
-  // // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
-  // // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
-  // res = await axios.get(`https://discordapp.com/api/users/@me`, {
-  //   headers: {
-  //     'Authorization': 'Bearer ' + access_token
-  //   }
-  // })
+  // 根据token获取用户信息
+  // 旧版本
+  // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
+  // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
+  res = await axios.get(`https://discord.com/api/v10/users/@me`, {
+    headers: {
+      'Authorization': 'Bearer ' + access_token
+    }
+  })
 
-  // // 渲染页面
-  // ctx.body = `
-  //   <h1>Hello ${res.data.login}</h1>
-  //   <img src="${res.data.avatar_url}" alt="">
-  // `
+  let {id,username,avatar} = res.data
+
+  // 渲染页面
+  ctx.body = `
+    <h1>Hello ${username}</h1>
+    <img src="${avatar}" alt="">
+  `
 })
 
-// // 登录接口
-// router.get('/github/login', async ctx => {
-//   // 重定向到GitHub认证接口，并配置参数
-//   let path = 'https://github.com/login/oauth/authorize?client_id=' + config.client_id
-//   // 转发到授权服务器
-//   ctx.redirect(path)
-// })
 
-
-
-// // GitHub授权登录成功回调，地址必须与GitHub配置的回调地址一致
-// router.get('/github/callback', async ctx => {
-//   console.log('callback...')
-
-//   // 服务器认证成功，回调带回认证状态code
-//   const code = ctx.query.code
-//   const params = {
-//     client_id: config.client_id,
-//     client_secret: config.client_secret,
-//     code: code
-//   }
-
-//   // 申请令牌token
-//   let res = await axios.post('https://github.com/login/oauth/access_token', params)
-//   const access_token = querystring.parse(res.data).access_token
-
-//   // 根据token获取用户信息
-//   // 旧版本
-//   // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
-//   // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
-//   res = await axios.get(`https://api.github.com/user`, {
-//     headers: {
-//       'Authorization': 'token ' + access_token
-//     }
-//   })
-
-//   // 渲染页面
-//   ctx.body = `
-//     <h1>Hello ${res.data.login}</h1>
-//     <img src="${res.data.avatar_url}" alt="">
-//   `
-// })
 
 
 
