@@ -326,7 +326,7 @@ router.get('/discord/callback', async ctx => {
   console.log('callback...')
 
   // 服务器认证成功，回调带回认证状态code
-  const {code,state} = ctx.query.code
+  const {code,state} = ctx.query
   const params = {
     client_id: '1006005005066715257',
     client_secret: 'IwViKo5eYRaV0tgwbmmrCcr_GzcT881I',
