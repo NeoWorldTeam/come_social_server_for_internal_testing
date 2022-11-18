@@ -43,48 +43,7 @@ app.use(koaBody({
 
 
 
-// // 登录接口
-// router.get('/github/login', async ctx => {
-//   // 重定向到GitHub认证接口，并配置参数
-//   let path = 'https://github.com/login/oauth/authorize?client_id=' + config.client_id
-//   // 转发到授权服务器
-//   ctx.redirect(path)
-// })
 
-
-
-// // GitHub授权登录成功回调，地址必须与GitHub配置的回调地址一致
-// router.get('/github/callback', async ctx => {
-//   console.log('callback...')
-
-//   // 服务器认证成功，回调带回认证状态code
-//   const code = ctx.query.code
-//   const params = {
-//     client_id: config.client_id,
-//     client_secret: config.client_secret,
-//     code: code
-//   }
-
-//   // 申请令牌token
-//   let res = await axios.post('https://github.com/login/oauth/access_token', params)
-//   const access_token = querystring.parse(res.data).access_token
-
-//   // 根据token获取用户信息
-//   // 旧版本
-//   // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
-//   // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
-//   res = await axios.get(`https://api.github.com/user`, {
-//     headers: {
-//       'Authorization': 'token ' + access_token
-//     }
-//   })
-
-//   // 渲染页面
-//   ctx.body = `
-//     <h1>Hello ${res.data.login}</h1>
-//     <img src="${res.data.avatar_url}" alt="">
-//   `
-// })
 
 const error_back = function(code) {
   if(code > 0) code = -code
@@ -356,45 +315,9 @@ router.get('/card/nft/progress', async ctx => {
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // 登录接口
 router.get('/discord/login', async ctx => {
-  let path = 'https://discord.com/api/oauth2/authorize?client_id=1019792433661349918&redirect_uri=http%3A%2F%2Fr9v04sg7r2k4.ngrok.xiaomiqiu123.top%2Fdiscord%2Fcallback&response_type=code&scope=identify'
+  let path = 'https://discord.com/api/oauth2/authorize?client_id=1006005005066715257&redirect_uri=https%3A%2F%2Fu4afndff7t3a.ngrok.xiaomiqiu123.top%2Fdiscord%2Fcallback&response_type=code&scope=identify'
   // 转发到授权服务器
   ctx.redirect(path)
 })
@@ -405,10 +328,10 @@ router.get('/discord/callback', async ctx => {
   // 服务器认证成功，回调带回认证状态code
   const code = ctx.query.code
   const params = {
-    client_id: '1019792433661349918',
-    client_secret: 'M0ZmltlMq6yPi15HS2hZ5NJrDu4jOxnq',
+    client_id: '1006005005066715257',
+    client_secret: 'IwViKo5eYRaV0tgwbmmrCcr_GzcT881I',
     grant_type: 'authorization_code',
-    redirect_uri:'http://45.32.32.246:3000/discord/callback',
+    redirect_uri:'https://u4afndff7t3a.ngrok.xiaomiqiu123.top/discord/callback',
     code: code
   }
 
@@ -416,7 +339,9 @@ router.get('/discord/callback', async ctx => {
 
   // 申请令牌token
   let res = await axios.post('https://discordapp.com/api/oauth2/token', params)
+  console.log('res is ' + res)
   const access_token = querystring.parse(res.data).access_token
+  console.log('access_token is ' + access_token)
 
   // 根据token获取用户信息
   // 旧版本
@@ -434,6 +359,49 @@ router.get('/discord/callback', async ctx => {
     <img src="${res.data.avatar_url}" alt="">
   `
 })
+
+// // 登录接口
+// router.get('/github/login', async ctx => {
+//   // 重定向到GitHub认证接口，并配置参数
+//   let path = 'https://github.com/login/oauth/authorize?client_id=' + config.client_id
+//   // 转发到授权服务器
+//   ctx.redirect(path)
+// })
+
+
+
+// // GitHub授权登录成功回调，地址必须与GitHub配置的回调地址一致
+// router.get('/github/callback', async ctx => {
+//   console.log('callback...')
+
+//   // 服务器认证成功，回调带回认证状态code
+//   const code = ctx.query.code
+//   const params = {
+//     client_id: config.client_id,
+//     client_secret: config.client_secret,
+//     code: code
+//   }
+
+//   // 申请令牌token
+//   let res = await axios.post('https://github.com/login/oauth/access_token', params)
+//   const access_token = querystring.parse(res.data).access_token
+
+//   // 根据token获取用户信息
+//   // 旧版本
+//   // res = await axios.get('https://api.github.com/user?access_token=' + access_token)
+//   // 新版本 官方推荐的使用access_token安全访问API的方式，用Authorization HTTP header代替query parameter，旧方式将被废弃
+//   res = await axios.get(`https://api.github.com/user`, {
+//     headers: {
+//       'Authorization': 'token ' + access_token
+//     }
+//   })
+
+//   // 渲染页面
+//   ctx.body = `
+//     <h1>Hello ${res.data.login}</h1>
+//     <img src="${res.data.avatar_url}" alt="">
+//   `
+// })
 
 
 
