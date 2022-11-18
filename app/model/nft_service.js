@@ -83,7 +83,7 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             //3.创建元数据
             let nft_asset_path = localPath + "/app/public/uploads/nft/assets/" + tokenId + ".mp4"
             let nft_json_path = localPath + "/app/public/uploads/nft/" + tokenId
-            let nft_asset_network = netowrkDomain + "/app/public/uploads/nft/assets/" + tokenId + ".mp4"
+            let nft_asset_network = netowrkDomain + "/uploads/nft/assets/" + tokenId + ".mp4"
             // let nft_json_network = netowrkDomain + "/app/public/uploads/nft/" + tokenId
             
             //写配置
