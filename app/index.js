@@ -317,7 +317,7 @@ router.get('/card/nft/progress', async ctx => {
 
 // 登录接口
 router.get('/discord/login', async ctx => {
-  let path = 'https://discord.com/api/oauth2/authorize?client_id=1006005005066715257&redirect_uri=https%3A%2F%2Fu4afndff7t3a.ngrok.xiaomiqiu123.top%2Fdiscord%2Fcallback&response_type=code&scope=identify'
+  let path = 'https://discord.com/api/oauth2/authorize?client_id=1006005005066715257&redirect_uri=http%3A%2F%2F45.32.32.246%3A3000%2Fdiscord%2Fcallback&response_type=code&scope=identify'
   // 转发到授权服务器
   ctx.redirect(path)
 })
@@ -331,7 +331,7 @@ router.get('/discord/callback', async ctx => {
     client_id: '1006005005066715257',
     client_secret: 'IwViKo5eYRaV0tgwbmmrCcr_GzcT881I',
     grant_type: 'authorization_code',
-    redirect_uri:'https://u4afndff7t3a.ngrok.xiaomiqiu123.top/discord/callback',
+    redirect_uri:'http://45.32.32.246:3000/discord/callback',
     code: code
   }
 
