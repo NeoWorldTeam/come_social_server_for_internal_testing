@@ -363,8 +363,19 @@ router.get('/discord/callback', async ctx => {
 
   // 渲染页面
   ctx.body = `
-    <h1>Hello ${username}</h1>
-    <img src="${avatar}" alt="">
+  <!DOCTYPE html>
+  <html>
+  <head>
+  <meta charset=" utf-8">
+  <script type="text/javascript">
+  window.onload = function runoob(){
+      window.webkit.messageHandlers.toggleMessageHandler.postMessage("${username}");
+  }
+  </script>
+  </head>
+  <body>
+  </body>
+  </html>
   `
 })
 
