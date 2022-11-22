@@ -14,6 +14,7 @@ const user_service = require('../app/model/user_service.js')
 const lobby_service = require('../app/model/lobby_service')
 const cards_service = require('../app/model/cards_service')
 const nft_service = require('../app/model/nft_service')
+const discord_service = require('../app/model/discord_service')
 const spatial_anchor_service = require('../app/model/spatial_anchor_service')
 
 // GitHub登录参数配置；配置授权应用生成的Client ID和Client Secret
@@ -317,7 +318,7 @@ router.get('/card/nft/progress', async ctx => {
 
 // 登录接口
 router.get('/discord/login', async ctx => {
-  let path = 'https://discord.com/api/oauth2/authorize?client_id=1006005005066715257&redirect_uri=http%3A%2F%2F45.32.32.246%3A3000%2Fdiscord%2Fcallback&response_type=code&scope=identify'
+  let path = 'https://discord.com/api/oauth2/authorize?client_id=1006005005066715257&permissions=8&redirect_uri=http%3A%2F%2F45.32.32.246%3A3000%2Fdiscord%2Fcallback&response_type=code&scope=identify%20bot'
   // 转发到授权服务器
   ctx.redirect(path)
 })
@@ -444,6 +445,51 @@ router.delete('/lobby/:id/anchors', (ctx, next) => {
 
 
 
+router.post('/links/discord', (ctx, next) => {
+  console.log('POST /discord/party')
+  var {userToken,appURLScheme,title} = ctx.query
+    if(userToken && userToken != "" && appURLScheme && appURLScheme != ""){
+      let {error,data} = discord_service.sendRequestToDiscord(userToken,appURLScheme)
+      if (error) {
+        ctx.body = error_back(error)
+      }else{
+        ctx.body = create_data(data)
+      }
+    }else{
+      ctx.body = error_back(10001)
+    }
+})
+
+router.get('/links/comesocild', (ctx, next) => {
+  console.log('GET /links/comesocild')
+  var {tempLink} = ctx.query
+    if(tempLink && tempLink != "" ){
+      let {error,data} = discord_service.getAppURLSchemeFromDiscord(tempLink)
+      if (error) {
+        ctx.body = error_back(error)
+      }else{
+        let {appUrlScheme,downloadUrl} = data
+        console.log("appUrlScheme:"+appUrlScheme)
+        // 渲染页面
+        ctx.body = `
+        <span id="open-comesocial">打开ComeSocial</span>
+        <script>
+        document.getElementById('open-comesocial').onclick = function() {
+            window.location.href = '${appUrlScheme}';
+            setTimeout(function() {
+                window.location.href = '${downloadUrl}';
+            }, 1000);
+        };
+        </script>
+        `
+      }
+    }else{
+      ctx.body = error_back(10001)
+    }
+})
+
+
+
 
 
 
@@ -453,6 +499,7 @@ app.use(router.allowedMethods())
 app.listen(3000, () => {
   console.log('listening port at 3000...')
 })
+
 
 
 
