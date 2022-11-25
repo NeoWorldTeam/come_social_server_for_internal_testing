@@ -446,7 +446,7 @@ router.delete('/lobby/:id/anchors', (ctx, next) => {
 
 
 router.post('/links/discord', (ctx, next) => {
-  console.log('POST /discord/party')
+  console.log('POST /links/discord')
   var {userToken,appURLScheme,title} = ctx.query
     if(userToken && userToken != "" && appURLScheme && appURLScheme != ""){
       let {error,data} = discord_service.sendRequestToDiscord(userToken,appURLScheme)
@@ -460,8 +460,8 @@ router.post('/links/discord', (ctx, next) => {
     }
 })
 
-router.get('/links/comesocild', (ctx, next) => {
-  console.log('GET /links/comesocild')
+router.get('/links/comesocial', (ctx, next) => {
+  console.log('GET /links/comesocial')
   var {tempLink} = ctx.query
     if(tempLink && tempLink != "" ){
       let {error,data} = discord_service.getAppURLSchemeFromDiscord(tempLink)
@@ -502,38 +502,3 @@ app.listen(3000, () => {
 
 
 
-
-
-
-// const koa = require('koa')
-// const koaBody = require('koa-body')
-// const koaStatic = require('koa-static')
-// const Router = require('koa-router')
-// const path = require('path')
-// const router = new Router()
-// const app = new koa()
-
-// app.use(koaStatic(path.join(__dirname, 'public')))
-// app.use(koaBody({
-//     // 支持文件格式
-//     multipart: true,
-//     formidable: {
-//         // 上传目录
-//         uploadDir: path.join(__dirname, 'public/uploads'),
-//         // 保留文件扩展名
-//         keepExtensions: true,
-//     }
-// }));
-
-// router.post('/upload', ctx => {
-//     const file = ctx.request.files.file
-//     const basename = path.basename(file.path)
-//     ctx.body = { "url": `${ctx.origin}/uploads/${basename}` }
-// })
-// app.use(router.routes());
-
-
-// app.listen(3001, () => {
-//     console.log('启动成功')
-//     console.log('http://localhost:3001')
-// });
