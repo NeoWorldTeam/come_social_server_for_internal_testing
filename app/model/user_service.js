@@ -38,11 +38,6 @@ module.exports.generateUser = function(userName) {
 
 //获取用户声网信息
 module.exports.getUserAgoraInfo = function(token) { 
-    
-    for (let [key, value] of map.entries()) {
-    if (value === searchValue)
-        return key;
-    }
 
     let userCache = userTokenCache[token]
     if (userCache) {
