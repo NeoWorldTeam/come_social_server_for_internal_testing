@@ -100,7 +100,7 @@ module.exports.getAgoraInfo = function(userToken,fieldId) {
         return {error: 10004, data: null}
     }
 
-    return {error: 0, data: {channelName:"happy", token:"007eJxTYPBc8q2dfYXv/tuxv1JzNkhveLcryvxj0dFG9rx1UVypB6QUGFKTki0NDCyMLQ2MjUySDEws0hINTJONDIH8FEOjZItja1uTGwIZGTZ672NhZIBAEJ+VISOxoKCSgQEArGYgkg=="}}
+    return {error: 0, data: {channelName:"happy", token:"007eJxTYDj04HVj28NffNvbp6xqLDo28/PifPvar+u7Rd04uSR+zU5QYEhNSrY0MLAwtjQwNjJJMjCxSEs0ME02MgTyUwyNki3YOduTGwIZGaKyzZkZGSAQxGdlyEgsKKhkYAAA9lEf3Q=="}}
 }
 
 
