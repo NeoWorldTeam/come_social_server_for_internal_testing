@@ -524,3 +524,6 @@ app.listen(3000, () => {
 })
 
 
+let defaultUser = user_service.generateUser("你好")
+lobby_service.createLobby(defaultUser.token,"默认场",1)
+
