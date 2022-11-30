@@ -38,8 +38,15 @@ module.exports.generateUser = function(userName) {
 
 //获取用户声网信息
 module.exports.getUserAgoraInfo = function(token) { 
-    let userObj = userTokenCache[token]
-    if (userObj) {
+    
+    for (let [key, value] of map.entries()) {
+    if (value === searchValue)
+        return key;
+    }
+
+    let userCache = userTokenCache[token]
+    if (userCache) {
+        let userObj = Object.assign({}, userCache)
         let userAgoraIdIndex = userAograCahce[userObj.id]
         userObj.aograId = userAgoraIdIndex
         return {error: null, data: userObj}
@@ -47,20 +54,37 @@ module.exports.getUserAgoraInfo = function(token) {
     return {error: 10002, data: null}
 }
 
+
+module.exports.getUserFromAgoraUid = function(token,agoraId) { 
+    let userKeys = [...userAograCahce.entries()]
+        .filter(({ 1: v }) => v === agoraId)
+        .map(([k]) => k);
+
+    if (userKeys.length != 1){
+        return {error: 10002, data: null}
+    }
+
+    let userId = userKeys[0]
+    return this.getUser(token,userId)
+}
+
 //查询用户
 module.exports.getUser = function(token,userId) { 
     let currentUser = userTokenCache[token]
     if (currentUser) {
+
+        
         if(userId){
-            let userObj = userTable.find(o => o.id === userId)
-            if(userObj){
+            let findUser = userTable.find(o => o.id === userId)
+            if(findUser){
+                let userObj = Object.assign({}, findUser)
                 return {error: null, data: userObj}
             }else{
                 return {error: 10004, data: null}
             }
-            
         }else{
-            return {error: null, data: currentUser}
+            let userObj = Object.assign({}, currentUser)
+            return {error: null, data: userObj}
         }
     }
     return {error: 10002, data: null}

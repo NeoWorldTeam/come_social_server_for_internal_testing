@@ -10,15 +10,15 @@ let getUserCardList = function (userId) {
     var cardList = userCardMap[userId]
     if(!cardList){
         cardList = []
+        let domain = process.env.DOMAIN
+        console.log("domain is ",domain)
         //初始化卡片
-        cardList.push({id:uuidv4(),name:"卡片名称1",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称2",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称3",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称4",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称5",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称6",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称7",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"卡片名称8",count:-1,type:1,cardCoverUrl:"http://image.url.com",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Aaron's Head",count:-1,type:1,coverURL: "res/img/facemask.png",backCoverURL: "res/img/facemask.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Light Stage",count:-1,type:2,coverURL: "res/img/partycover.png",backCoverURL: "res/img/partycover.png",ownerId:userId})
+
+        cardList.push({id:uuidv4(),name:"XXX's NFT",count:-1,type:3,coverURL: "res/img/nftcover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Discord Invite",count:-1,type:4,coverURL: "res/img/discordcover.png",backCoverURL: "res/img/discordback.png",ownerId:userId})
+
         userCardMap[userId] = cardList
     }
 
@@ -55,7 +55,7 @@ module.exports.deleteCard = function(userToken,cardId) {
     }    
 
     let cardList = getUserCardList(currentUser.id)
-    let cardIndex = cardList.findIndex( o => o.id == cardId )
+    let cardIndex = cardList.findIndex( o => o.id === cardId )
     if(cardIndex == -1){
         return {error: 0, data: null}
     }
@@ -87,7 +87,7 @@ module.exports.presentCard = function(userToken,cardId,receiveUserId) {
     let cardList = getUserCardList(currentUser.id)
 
     //查找卡片是否存在
-    let cardIndex = cardList.findIndex( o => o.id == cardId )
+    let cardIndex = cardList.findIndex( o => o.id === cardId )
     if(cardIndex == -1){
         return {error: 10004, data: null}
     }

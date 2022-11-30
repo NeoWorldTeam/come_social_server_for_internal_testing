@@ -1,3 +1,4 @@
+require("dotenv").config();
 const path = require('path');
 const Koa = require('koa')
 const Router = require('koa-router')
@@ -17,11 +18,11 @@ const nft_service = require('../app/model/nft_service')
 const discord_service = require('../app/model/discord_service')
 const spatial_anchor_service = require('../app/model/spatial_anchor_service')
 
-// GitHub登录参数配置；配置授权应用生成的Client ID和Client Secret
-const config = {
-    client_id: 'xxxxxxxxxxxxxxxxxx',
-    client_secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-}
+// // GitHub登录参数配置；配置授权应用生成的Client ID和Client Secret
+// const config = {
+//     client_id: 'xxxxxxxxxxxxxxxxxx',
+//     client_secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+// }
 
 const app = new Koa()
 const router = new Router();
@@ -40,7 +41,6 @@ app.use(koaBody({
       keepExtensions: true,
   }
 }));
-
 
 
 
@@ -90,16 +90,39 @@ router.get('/users', async ctx => {
   }
 })
 
-// 查询用户声网信息
-router.get('/users/agora', async ctx => {
-  console.log('GET /users/agora')
+// // 查询用户声网信息
+// router.get('/users/agora', async ctx => {
+//   console.log('GET /users/agora')
+//   const {userToken} = ctx.query
+//   if (userToken && userToken.trim() != ""){
+//     let {error,data} = user_service.getUserAgoraInfo(userToken)
+//     if (error) {
+//       ctx.body = error_back(error)
+//     }else{
+//       ctx.body = create_data(data)
+//     }
+//   }else{
+//     ctx.body = error_back(10001)
+//   }
+// })
+
+
+// 查询当前场的声网信息
+router.get('/fields/:id/agora', async ctx => {
+  console.log('GET /fields/:id/agora')
   const {userToken} = ctx.query
+  const {id} = ctx.params
   if (userToken && userToken.trim() != ""){
-    let {error,data} = user_service.getUserAgoraInfo(userToken)
-    if (error) {
-      ctx.body = error_back(error)
+    let {error1,data:data1} = user_service.getUserAgoraInfo(userToken)
+    let {error2,data:data2} = lobby_service.getAgoraInfo(userToken,id)
+    
+    if (error1) {
+      ctx.body = error_back(error1)
+    }else if(error2){
+      ctx.body = error_back(error2)
     }else{
-      ctx.body = create_data(data)
+      
+      ctx.body = create_data(Object.assign(data1,data2))
     }
   }else{
     ctx.body = error_back(10001)
@@ -182,7 +205,7 @@ router.delete('/fields/:id', (ctx, next) => {
 //加入场
 router.put('/fields/:id/numbers', (ctx, next) => {
   console.log('PUT /fields/:id/numbers')
-  const {userToken} = ctx.query
+  const {userToken} = ctx.request.body
   const {id} = ctx.params
 
   if(userToken && userToken.trim() != "" && id && id.trim() != ""){
@@ -385,14 +408,14 @@ router.get('/discord/callback', async ctx => {
 
 
 
-// 获取声网数据
-router.get('/user/agora', async ctx => {
-  console.log('GET /user/agora')
-  const {token} = ctx.query
-  console.log(ctx.query)
-  let user = user_service.getAgoraInfo(token)
-  ctx.body = user
-})
+// // 获取声网数据
+// router.get('/user/agora', async ctx => {
+//   console.log('GET /user/agora')
+//   const {token} = ctx.query
+//   console.log(ctx.query)
+//   let user = user_service.getAgoraInfo(token)
+//   ctx.body = user
+// })
 
 
 

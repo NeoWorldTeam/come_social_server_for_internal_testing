@@ -56,7 +56,6 @@ module.exports.createLobby = function(userToken,fieldName,fieldType) {
     lobbyObj.name = fieldName
     lobbyObj.type = parseInt(fieldType)
     lobbyObj.createrId = currentUser.id
-    // lobbyObj.roomRealTime = {channelName:"happy", token:"007eJxTYBDffyXbJePtrQ1yF+1+bFBKSHoV/zZcvp3jZf6FMgEO8zIFhtSkZEsDAwtjSwNjI5MkAxOLtEQD02QjQyA/xdAo2aJJPju5IZCRIS/lIBMjAwSC+KwMGYkFBZUMDABQph7B"}
     lobbyTable.push(lobbyObj)
 
     // let onlinePlayers = []
@@ -74,7 +73,7 @@ module.exports.closeLobby = function(userToken,fieldId) {
     }    
 
     
-    let fieldIndex = lobbyTable.findIndex( o => o.id == fieldId )
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
     if(fieldIndex == -1){
         return {error: 0, data: null}
     }
@@ -88,6 +87,21 @@ module.exports.closeLobby = function(userToken,fieldId) {
 }
 
 
+//获取场的声网数据
+module.exports.getAgoraInfo = function(userToken,fieldId) { 
+    let {error, data:currentUser} = user_service.getUser(userToken)
+    if(error){
+        return {error: error, data: null}
+    }    
+
+    
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
+    if(fieldIndex == -1){
+        return {error: 10004, data: null}
+    }
+
+    return {error: 0, data: {channelName:"happy", token:"007eJxTYPBc8q2dfYXv/tuxv1JzNkhveLcryvxj0dFG9rx1UVypB6QUGFKTki0NDCyMLQ2MjUySDEws0hINTJONDIH8FEOjZItja1uTGwIZGTZ672NhZIBAEJ+VISOxoKCSgQEArGYgkg=="}}
+}
 
 
 //加入场
@@ -99,7 +113,7 @@ module.exports.JoinField = function(userToken,fieldId) {
     }    
 
     //查找场
-    let fieldIndex = lobbyTable.findIndex( o => o.id == fieldId )
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
     if(fieldIndex == -1){
         return {error: 10004, data: null}
     }
@@ -112,10 +126,13 @@ module.exports.JoinField = function(userToken,fieldId) {
     }
 
     //已加入
-    if(onlinePlayers.find(o => o.id = currentUser.id)){
+    if(onlinePlayers.find(o => o.id === currentUser.id)){
         return {error: 0, data: onlinePlayers}
     }
 
+    //查询声网信息
+    let {error:agoraError,data:{aograId}} = user_service.getUserAgoraInfo(userToken)
+    currentUser.aograId = aograId
     onlinePlayers.push(currentUser)
     return {error: 0, data: onlinePlayers}
 }
@@ -129,7 +146,7 @@ module.exports.QuitLobby = function(userToken,fieldId) {
     }    
 
     //查找场
-    let fieldIndex = lobbyTable.findIndex( o => o.id == fieldId )
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
     if(fieldIndex == -1){
         return {error: 0, data: null}
     }
@@ -138,9 +155,9 @@ module.exports.QuitLobby = function(userToken,fieldId) {
     var onlinePlayers = lobbyPlayersCache[lobbyTable[fieldIndex].id]
     if(onlinePlayers){
         //验证当前玩家是否在场内
-        let userIndex = onlinePlayers.findIndex(o => o.id = currentUser.id)
+        let userIndex = onlinePlayers.findIndex(o => o.id === currentUser.id)
         if(userIndex != -1){
-            lobbyTable.splice(userIndex, 1)
+            onlinePlayers.splice(userIndex, 1)
         }
     }
     return {error: 0, data: null}
@@ -155,7 +172,7 @@ module.exports.UpdateOthersQuitLobby = function(userToken,fieldId,otherId) {
     }    
 
     //查找场
-    let fieldIndex = lobbyTable.findIndex( o => o.id == fieldId )
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
     if(fieldIndex == -1){
         return {error: 0, data: null}
     }
@@ -164,12 +181,15 @@ module.exports.UpdateOthersQuitLobby = function(userToken,fieldId,otherId) {
     var onlinePlayers = lobbyPlayersCache[lobbyTable[fieldIndex].id]
     if(onlinePlayers){
         //验证当前玩家是否在场内
-        let userIndex = onlinePlayers.findIndex(o => o.id = currentUser.id)
+        let userIndex = onlinePlayers.findIndex(o => o.id === currentUser.id)
         if(userIndex != -1){
             //其他玩家
-            let otherIndex = onlinePlayers.findIndex(o => o.id = otherId)
-            if(otherIndex != -1){
-                lobbyTable.splice(otherIndex, 1)
+            let otherUser = user_service.getUserFromAgoraUid(otherId)
+            if(otherUser){
+                let otherIndex = onlinePlayers.findIndex(o => o.id === otherUser.id)
+                if(otherIndex != -1){
+                    onlinePlayers.splice(otherIndex, 1)
+                }
             }
         }
     }
