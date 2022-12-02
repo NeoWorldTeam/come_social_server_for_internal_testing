@@ -13,11 +13,11 @@ let getUserCardList = function (userId) {
         let domain = process.env.DOMAIN
         console.log("domain is ",domain)
         //初始化卡片
-        cardList.push({id:uuidv4(),name:"Aaron's Head",count:-1,type:1,coverURL: "res/img/facemask.png",backCoverURL: "res/img/facemask.png",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Light Stage",count:-1,type:2,coverURL: "res/img/partycover.png",backCoverURL: "res/img/partycover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Aaron's Head",count:-1,type:1,coverURL: "res/img/facemask.jpg",backCoverURL: "res/img/facemask.jpg",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Light Stage",count:-1,type:2,coverURL: "res/img/partycover.jpg",backCoverURL: "res/img/partycover.jpg",ownerId:userId})
 
-        cardList.push({id:uuidv4(),name:"XXX's NFT",count:-1,type:3,coverURL: "res/img/nftcover.png",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Discord Invite",count:-1,type:4,coverURL: "res/img/discordcover.png",backCoverURL: "res/img/discordback.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"XXX's NFT",count:-1,type:3,coverURL: "res/img/nftcover.jpg",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Discord Invite",count:-1,type:4,coverURL: "res/img/discordcover.jpg",backCoverURL: "res/img/discordback.jpg",ownerId:userId})
 
         userCardMap[userId] = cardList
     }

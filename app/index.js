@@ -18,11 +18,6 @@ const nft_service = require('../app/model/nft_service')
 const discord_service = require('../app/model/discord_service')
 const spatial_anchor_service = require('../app/model/spatial_anchor_service')
 
-// // GitHub登录参数配置；配置授权应用生成的Client ID和Client Secret
-// const config = {
-//     client_id: 'xxxxxxxxxxxxxxxxxx',
-//     client_secret: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-// }
 
 const app = new Koa()
 const router = new Router();
@@ -89,22 +84,6 @@ router.get('/users', async ctx => {
     ctx.body = error_back(10001)
   }
 })
-
-// // 查询用户声网信息
-// router.get('/users/agora', async ctx => {
-//   console.log('GET /users/agora')
-//   const {userToken} = ctx.query
-//   if (userToken && userToken.trim() != ""){
-//     let {error,data} = user_service.getUserAgoraInfo(userToken)
-//     if (error) {
-//       ctx.body = error_back(error)
-//     }else{
-//       ctx.body = create_data(data)
-//     }
-//   }else{
-//     ctx.body = error_back(10001)
-//   }
-// })
 
 
 // 查询当前场的声网信息
@@ -405,24 +384,6 @@ router.get('/discord/callback', async ctx => {
 
 
 
-
-
-
-// // 获取声网数据
-// router.get('/user/agora', async ctx => {
-//   console.log('GET /user/agora')
-//   const {token} = ctx.query
-//   console.log(ctx.query)
-//   let user = user_service.getAgoraInfo(token)
-//   ctx.body = user
-// })
-
-
-
-
-
-
-
 //查询anchor
 router.get('/lobby/:id/anchors', (ctx, next) => {
   console.log('GET /lobby/:id/anchors')
@@ -462,9 +423,6 @@ router.delete('/lobby/:id/anchors', (ctx, next) => {
   }
   ctx.body = ret
 })
-
-
-
 
 
 
@@ -523,7 +481,7 @@ app.listen(3000, () => {
   console.log('listening port at 3000...')
 })
 
-
+//init data
 let defaultUser = user_service.generateUser("你好")
 lobby_service.createLobby(defaultUser.token,"默认场",1)
 
