@@ -11,12 +11,12 @@ const querystring = require('querystringify')
 const axios = require('axios')
 
 
-const user_service = require('../app/model/user_service.js')
-const lobby_service = require('../app/model/lobby_service')
-const cards_service = require('../app/model/cards_service')
-const nft_service = require('../app/model/nft_service')
-const discord_service = require('../app/model/discord_service')
-const spatial_anchor_service = require('../app/model/spatial_anchor_service')
+const user_service = require('../app/service/user_service.js')
+const lobby_service = require('../app/service/lobby_service')
+const cards_service = require('../app/service/cards_service')
+const nft_service = require('../app/service/nft_service')
+const discord_service = require('../app/service/discord_service')
+const spatial_anchor_service = require('../app/service/spatial_anchor_service')
 
 
 const app = new Koa()
