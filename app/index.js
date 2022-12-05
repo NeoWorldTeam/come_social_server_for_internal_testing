@@ -1,4 +1,3 @@
-require("dotenv").config();
 const path = require('path');
 const Koa = require('koa')
 const Router = require('koa-router')
@@ -455,12 +454,12 @@ router.get('/links/comesocial', (ctx, next) => {
         ctx.body = `
         <span id="open-comesocial">打开ComeSocial</span>
         <script>
-        document.getElementById('open-comesocial').onclick = function() {
-            window.location.href = '${appUrlScheme}';
+        window.onload = function(){
+          window.location.href = '${appUrlScheme}';
             setTimeout(function() {
                 window.location.href = '${downloadUrl}';
-            }, 1000);
-        };
+            }, 3000);
+        }
         </script>
         `
       }

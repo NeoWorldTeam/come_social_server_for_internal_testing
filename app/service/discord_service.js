@@ -37,7 +37,7 @@ module.exports.sendRequestToDiscord = function(userToken,appUrlScheme){
 
     //创建临时连接
     let requestId = uuidv4()
-    discordRequest.push({requestId:requestId,appUrlScheme:appUrlScheme,state:1,downloadUrl:"https:www.baidu.com"})
+    discordRequest.push({requestId:requestId,appUrlScheme:appUrlScheme,state:1,downloadUrl:"https://www.neoworld.cloud/"})
 
 
     client.sayHello({name: requestId}, function(err, response) {
