@@ -1,5 +1,6 @@
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4, NIL } = require('uuid')
 const user_service = require('./user_service.js')
+const agora_service = require('./agora_service.js')
 
 //场的表
 const lobbyTable = []
@@ -86,24 +87,6 @@ module.exports.closeLobby = function(userToken,fieldId) {
     }
 }
 
-
-//获取场的声网数据
-module.exports.getAgoraInfo = function(userToken,fieldId) { 
-    let {error, data:currentUser} = user_service.getUser(userToken)
-    if(error){
-        return {error: error, data: null}
-    }    
-
-    
-    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
-    if(fieldIndex == -1){
-        return {error: 10004, data: null}
-    }
-
-    return {error: 0, data: {channelName:"happy", token:"007eJxTYLhXuGYr2+1/ds5cWsZPL1kuanJvbnK8tyTvKBvjBFvDlj8KDKlJyZYGBhbGlgbGRiZJBiYWaYkGpslGhkB+iqFRsoW9d29yQyAjw+80TlZGBggE8VkZMhILCioZGAAw7h5p"}}
-}
-
-
 //加入场
 module.exports.JoinField = function(userToken,fieldId) { 
     //获取当前玩家
@@ -130,9 +113,6 @@ module.exports.JoinField = function(userToken,fieldId) {
         return {error: 0, data: onlinePlayers}
     }
 
-    //查询声网信息
-    let {error:agoraError,data:{aograId}} = user_service.getUserAgoraInfo(userToken)
-    currentUser.aograId = aograId
     onlinePlayers.push(currentUser)
     return {error: 0, data: onlinePlayers}
 }
@@ -184,9 +164,9 @@ module.exports.UpdateOthersQuitLobby = function(userToken,fieldId,otherId) {
         let userIndex = onlinePlayers.findIndex(o => o.id === currentUser.id)
         if(userIndex != -1){
             //其他玩家
-            let otherUser = user_service.getUserFromAgoraUid(otherId)
-            if(otherUser){
-                let otherIndex = onlinePlayers.findIndex(o => o.id === otherUser.id)
+            let {error: agoraError,data:{agoraId:otherUserId}} = agora_service.getUserIdFromAgoraId(otherId)
+            if(!agoraError){
+                let otherIndex = onlinePlayers.findIndex(o => o.id === otherUserId)
                 if(otherIndex != -1){
                     onlinePlayers.splice(otherIndex, 1)
                 }

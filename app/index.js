@@ -16,7 +16,7 @@ const cards_service = require('../app/service/cards_service')
 const nft_service = require('../app/service/nft_service')
 const discord_service = require('../app/service/discord_service')
 const spatial_anchor_service = require('../app/service/spatial_anchor_service')
-
+const agora_service = require('../app/service/agora_service.js')
 
 const app = new Koa()
 const router = new Router();
@@ -60,8 +60,12 @@ router.get('/users/temp', async ctx => {
   console.log('GET /users/temp')
   const {userName} = ctx.query
   if (userName && userName.trim() != ""){
-    let user = user_service.generateUser(userName)
-    ctx.body = create_data(user)
+    let {error,data} = user_service.generateUser(userName)
+    if(error) {
+      ctx.body = error_back(error)
+    }else{
+      ctx.body = create_data(data)
+    }
   }else{
     ctx.body = error_back(10001)
   }
@@ -90,21 +94,57 @@ router.get('/fields/:id/agora', async ctx => {
   console.log('GET /fields/:id/agora')
   const {userToken} = ctx.query
   const {id} = ctx.params
-  if (userToken && userToken.trim() != ""){
-    let {error1,data:data1} = user_service.getUserAgoraInfo(userToken)
-    let {error2,data:data2} = lobby_service.getAgoraInfo(userToken,id)
-    
-    if (error1) {
-      ctx.body = error_back(error1)
-    }else if(error2){
-      ctx.body = error_back(error2)
-    }else{
-      
-      ctx.body = create_data(Object.assign(data1,data2))
+  if (userToken && userToken.trim() != "" && id && id.trim() != "" ){
+
+    //get user
+    let {error: userError,data:userModel} = user_service.getUser(userToken)
+    if (userError) {
+      ctx.body = error_back(userError)
+      return 
     }
+
+    //get field
+    let {error: fieldError,data:fieldModel} = lobby_service.getLobby(userToken,id)
+    if(fieldError) {
+      ctx.body = error_back(fieldError)
+      return 
+    }
+
+    //get agora id
+    let {error: agoraError,data:{aograId}} = agora_service.getUserAgoraId(userModel.id)
+    if (agoraError) {
+      ctx.body = error_back(agoraError)
+      return 
+    }
+
+    //get agora token 
+    let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(fieldModel.name, aograId, "publisher")
+    if(rtcError){
+      ctx.body = error_back(agoraError)
+      return 
+    }
+
+    let result = {aograId: aograId,channelName: fieldModel.name, token: rtcToken}
+    ctx.body = create_data(result)
   }else{
     ctx.body = error_back(10001)
   }
+})
+
+//轮询 同步场的状态
+//同步自身在线状态
+//同步其他用户在线状态
+//同步
+router.post('/lobby/:id/status', (ctx, next) => {
+  console.log('POST /lobby/:id/anchors')
+  var anchorId = ctx.request.body.anchorId
+  const { id } = ctx.params 
+  console.log('id:',id,'anchorId:',anchorId)
+  var ret = []
+  if(anchorId != null && id != null){
+    ret = spatial_anchor_service.addSpatialAnchor(id,anchorId)
+  }
+  ctx.body = ret
 })
 
 
@@ -481,6 +521,15 @@ app.listen(3000, () => {
 })
 
 //init data
-let defaultUser = user_service.generateUser("你好")
-lobby_service.createLobby(defaultUser.token,"默认场",1)
+let {error,data} = user_service.generateUser("你好")
+if(!error) {
+  lobby_service.createLobby(data.token,"默认场",1)
+}
 
+
+
+function intervalFunc() {
+  lobby_service.UpdatePlayerOnlineState()
+}
+
+setInterval(intervalFunc, 5000);
