@@ -13,11 +13,22 @@ let getUserCardList = function (userId) {
         let domain = process.env.DOMAIN
         console.log("domain is ",domain)
         //初始化卡片
-        cardList.push({id:uuidv4(),name:"Aaron's Head",count:-1,type:1,coverURL: "res/img/facemask.jpg",backCoverURL: "res/img/facemask.jpg",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Light Stage",count:-1,type:2,coverURL: "res/img/partycover.jpg",backCoverURL: "res/img/partycover.jpg",ownerId:userId})
+        
+        // 1 面具卡
+        cardList.push({id:uuidv4(),name:"Blue Hair Boy",count:-1,type:1,coverURL: "res/img/mask_1/card_cover.png",backCoverURL: "res/img/mask_1/card_back_cover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Blond Girl",count:-1,type:1,coverURL: "res/img/mask_2/card_cover.png",backCoverURL: "res/img/mask_2/card_back_cover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"African Style",count:-1,type:1,coverURL: "res/img/mask_3/card_cover.png",backCoverURL: "res/img/mask_3/card_back_cover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Smirky Cat",count:-1,type:1,coverURL: "res/img/mask_4/card_cover.png",backCoverURL: "res/img/mask_4/card_back_cover.png",ownerId:userId})
+        // 2 Party卡
+        cardList.push({id:uuidv4(),name:"Wigggle Time",count:-1,type:2,coverURL: "res/img/party_1/card_cover.png",backCoverURL: "res/img/party_1/card_back_cover.png",ownerId:userId})
+        // 3 NFT铸造卡
+        cardList.push({id:uuidv4(),name:"Make CS NFT",count:-1,type:3,coverURL: "res/img/make_nft_1/card_cover.png",backCoverURL: "res/img/make_nft_1/card_back_cover.png",ownerId:userId})
+        // 4 Discord 邀请卡
+        cardList.push({id:uuidv4(),name:"Invite your friends via discord",count:-1,type:4,coverURL: "res/img/discord_1/card_cover.png",backCoverURL: "res/img/discord_1/card_back_cover.png",ownerId:userId})
+        // 5 NFT卡
+        cardList.push({id:uuidv4(),name:"Nicki",count:-1,type:5,coverURL: "res/img/nft_1/card_cover.png",backCoverURL: "res/img/nft_1/card_back_cover.png",ownerId:userId})
 
-        cardList.push({id:uuidv4(),name:"XXX's NFT",count:-1,type:3,coverURL: "res/img/nftcover.jpg",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Discord Invite",count:-1,type:4,coverURL: "res/img/discordcover.jpg",backCoverURL: "res/img/discordback.jpg",ownerId:userId})
+        
 
         userCardMap[userId] = cardList
     }
