@@ -111,20 +111,20 @@ router.get('/fields/:id/agora', async ctx => {
     }
 
     //get agora id
-    let {error: agoraError,data:{aograId}} = agora_service.getUserAgoraId(userModel.id)
+    let {error: agoraError,data:{agoraId}} = agora_service.getUserAgoraId(userModel.id)
     if (agoraError) {
       ctx.body = error_back(agoraError)
       return 
     }
 
     //get agora token 
-    let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(fieldModel.name, aograId, "publisher")
+    let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(fieldModel.name, agoraId, "publisher")
     if(rtcError){
       ctx.body = error_back(agoraError)
       return 
     }
 
-    let result = {aograId: aograId,channelName: fieldModel.name, token: rtcToken}
+    let result = {agoraId: agoraId,channelName: fieldModel.name, token: rtcToken}
     ctx.body = create_data(result)
   }else{
     ctx.body = error_back(10001)
@@ -135,16 +135,22 @@ router.get('/fields/:id/agora', async ctx => {
 //同步自身在线状态
 //同步其他用户在线状态
 //同步
-router.post('/lobby/:id/status', (ctx, next) => {
-  console.log('POST /lobby/:id/anchors')
-  var anchorId = ctx.request.body.anchorId
-  const { id } = ctx.params 
-  console.log('id:',id,'anchorId:',anchorId)
-  var ret = []
-  if(anchorId != null && id != null){
-    ret = spatial_anchor_service.addSpatialAnchor(id,anchorId)
+router.get('/fields/:id/players', (ctx, next) => {
+  console.log('POST /fields/:id/players')
+  const {userToken,timeStamp} = ctx.query
+  const {id} = ctx.params
+
+  if (userToken && userToken.trim() != "" && id && id.trim() != "" && timeStamp && timeStamp.trim() != ""){
+    let timeStampInMileSce = parseInt(timeStamp, 10)
+    let {error,data} = lobby_service.pullFieldState(userToken,id,timeStampInMileSce)
+    if(error) {
+      ctx.body = error_back(error)
+    }else{
+      ctx.body = create_data(data)
+    }
+  }else{
+    ctx.body = error_back(10001)
   }
-  ctx.body = ret
 })
 
 
@@ -523,8 +529,12 @@ app.listen(3000, () => {
 //init data
 let {error,data} = user_service.generateUser("你好")
 if(!error) {
-  lobby_service.createLobby(data.token,"默认场",1)
+  let {data:feildModel } = lobby_service.createLobby(data.token,"默认场",1)
+  if(feildModel){
+    console.log("id:",feildModel.id)
+  }
 }
+
 
 
 
@@ -532,4 +542,4 @@ function intervalFunc() {
   lobby_service.UpdatePlayerOnlineState()
 }
 
-setInterval(intervalFunc, 5000);
+setInterval(intervalFunc, 1000);

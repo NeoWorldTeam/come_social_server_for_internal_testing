@@ -10,7 +10,7 @@ const APP_CERTIFICATE = process.env.APP_CERTIFICATE;
 
 
 //用户声网缓存
-const userAograCahce = {}
+const useragoraCahce = {}
 
 //声网分配ID
 var userAgoraIdIndex = 10
@@ -44,6 +44,7 @@ module.exports.generateRTCToken = (channelName, uid, role, expireTime, tokentype
       return {error: 0, data: {"rtcToken":token}}
     } else if (tokentype === 'uid') {
       const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, rtcRole, privilegeExpireTime);
+      console.log("token:",token)    
       return {error: 0, data: {"rtcToken":token}}
     } else {
       return {error: 10004}
@@ -61,17 +62,17 @@ module.exports.generateRTMToken = (uid, role, privilegeExpireTime) => {
 
 //create agora id
 module.exports.generateAgoraId = (userId) => {
-  let userCache = userAograCahce[userId]
+  let userCache = useragoraCahce[userId]
   if (userCache == null) {
-    userCache = {aograId: userAgoraIdIndex++}
-    userAograCahce[userId] = userCache
+    userCache = {agoraId: userAgoraIdIndex++}
+    useragoraCahce[userId] = userCache
   }
   return {error: 0, data: userCache}
 }
 
 //get agora id
 module.exports.getUserAgoraId = function(userId) { 
-  let userCache = userAograCahce[userId]
+  let userCache = useragoraCahce[userId]
   if (userCache) {
     return {error: 0, data: userCache}
   }
@@ -81,7 +82,7 @@ module.exports.getUserAgoraId = function(userId) {
 
 
 module.exports.getUserIdFromAgoraId = function(agoraId) {
-  let userKeys = [...userAograCahce.entries()]
+  let userKeys = [...useragoraCahce.entries()]
   .filter(({ 1: v }) => v === agoraId)
   .map(([k]) => k);
 
