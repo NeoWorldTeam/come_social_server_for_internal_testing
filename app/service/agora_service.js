@@ -86,16 +86,14 @@ module.exports.getUserAgoraId = function(userId) {
 
 
 module.exports.getUserIdFromAgoraId = function(agoraId) {
-  let userKeys = [...useragoraCahce.entries()]
-  .filter(({ 1: v }) => v === agoraId)
-  .map(([k]) => k);
-
-  if (userKeys.length != 1){
-    return {error: 10002}
+  for(let userId in useragoraCahce) {
+    let {agoraId:userAgoraId} = useragoraCahce[userId]
+    if(userAgoraId == agoraId){
+      return {data: {userId:userId}}
+    } 
   }
 
-  let userId = userKeys[0]
-  return {error: 0, data: {userId:userId}}
+  return {error: 10004}
 }
 
 
