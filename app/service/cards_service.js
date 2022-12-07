@@ -27,8 +27,8 @@ let getUserCardList = function (userId) {
         cardList.push({id:uuidv4(),name:"Invite your friends via discord",count:-1,type:4,coverURL: "res/img/discord_1/card_cover.png",backCoverURL: "res/img/discord_1/card_back_cover.png",ownerId:userId})
         // 5 NFT卡
         cardList.push({id:uuidv4(),name:"Nicki",count:-1,type:5,coverURL: "res/img/nft_1/card_cover.png",backCoverURL: "res/img/nft_1/card_back_cover.png",ownerId:userId})
-
-        
+        // 6 airdorp
+        cardList.push({id:uuidv4(),name:"Airdorp",count:-1,type:6,coverURL: "res/img/airdrop_1/card_cover.png",backCoverURL: "res/img/airdrop_1/card_back_cover.png",ownerId:userId})
 
         userCardMap[userId] = cardList
     }
