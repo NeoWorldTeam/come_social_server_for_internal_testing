@@ -1,12 +1,15 @@
 const dotenv = require('dotenv');
-const {RtcTokenBuilder, RtcRole, RtmTokenBuilder, RtmRole} = require('agora-access-token');
 dotenv.config();
 
-const user_service = require('./user_service.js')
+
+const RtcTokenBuilder = require('./agora/src/RtcTokenBuilder2').RtcTokenBuilder
+const RtcRole = require('./agora/src/RtcTokenBuilder2').Role
 
 
 const APP_ID = process.env.APP_ID;
 const APP_CERTIFICATE = process.env.APP_CERTIFICATE;
+const tokenExpirationInSecond = 3600
+const privilegeExpirationInSecond = 3600
 
 
 //用户声网缓存
@@ -16,8 +19,8 @@ const useragoraCahce = {}
 var userAgoraIdIndex = 10
 
 
-module.exports.generateRTCToken = (channelName, uid, role, expireTime, tokentype = "uid") => {
-  console.log(APP_ID, APP_CERTIFICATE, channelName, uid, role, expireTime, tokentype)
+module.exports.generateRTCToken = (channelId, uid, role, expireTime, tokentype = "uid") => {
+  
   
   // get role
   let rtcRole
@@ -35,29 +38,30 @@ module.exports.generateRTCToken = (channelName, uid, role, expireTime, tokentype
   } else {
     expireTime = parseInt(expireTime, 10);
   }
-  const currentTime = Math.floor(Date.now() / 1000);
-  const privilegeExpireTime = currentTime + expireTime;
+
 
 
   if (tokentype === 'userAccount') {
-      const token = RtcTokenBuilder.buildTokenWithAccount(APP_ID, APP_CERTIFICATE, channelName, uid, rtcRole, privilegeExpireTime);
-      return {error: 0, data: {"rtcToken":token}}
+      // const token = RtcTokenBuilder.buildTokenWithAccount(APP_ID, APP_CERTIFICATE, channelName, uid, rtcRole, privilegeExpireTime);
+      // return {error: 0, data: {"rtcToken":token}}
     } else if (tokentype === 'uid') {
-      const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, rtcRole, privilegeExpireTime);
-      console.log("token:",token)    
-      return {error: 0, data: {"rtcToken":token}}
+          
+      const tokenA = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelId, uid, rtcRole, tokenExpirationInSecond, privilegeExpirationInSecond)
+      console.log("channelId:",channelId,"uid:",uid,"rtcRole:",rtcRole,"tokenA:",tokenA)
+      
+      return {error: 0, data: {"rtcToken":tokenA}}
     } else {
       return {error: 10004}
   }
 }
   
-module.exports.generateRTMToken = (uid, role, privilegeExpireTime) => {
-  // build the token
-  console.log(APP_ID, APP_CERTIFICATE, uid, role, privilegeExpireTime)
-  const token = RtmTokenBuilder.buildToken(APP_ID, APP_CERTIFICATE, uid, role, privilegeExpireTime);
-  // return the token
-  return {error: 0, data: {"rtmToken":token }};
-}
+// module.exports.generateRTMToken = (uid, role, privilegeExpireTime) => {
+//   // build the token
+//   console.log(APP_ID, APP_CERTIFICATE, uid, role, privilegeExpireTime)
+//   const token = RtmTokenBuilder.buildToken(APP_ID, APP_CERTIFICATE, uid, role, privilegeExpireTime);
+//   // return the token
+//   return {error: 0, data: {"rtmToken":token }};
+// }
 
 
 //create agora id

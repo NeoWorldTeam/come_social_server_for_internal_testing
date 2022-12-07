@@ -118,7 +118,7 @@ router.get('/fields/:id/agora', async ctx => {
     }
 
     //get agora token 
-    let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(fieldModel.name, agoraId, "publisher")
+    let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(fieldModel.id, agoraId, "publisher")
     if(rtcError){
       ctx.body = error_back(agoraError)
       return 
