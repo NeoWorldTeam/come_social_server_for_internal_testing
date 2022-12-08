@@ -21,6 +21,7 @@ let getUserCardList = function (userId) {
         cardList.push({id:uuidv4(),name:"Smirky Cat",count:-1,type:1,coverURL: "res/img/mask_4/card_cover.png",backCoverURL: "res/img/mask_4/card_back_cover.png",ownerId:userId})
         // 2 Party卡
         cardList.push({id:uuidv4(),name:"Wigggle Time",count:-1,type:2,coverURL: "res/img/party_1/card_cover.png",backCoverURL: "res/img/party_1/card_back_cover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Truth",count:-1,type:2,coverURL: "res/img/truth_1/card_cover.png",backCoverURL: "res/img/truth_1/card_back_cover.png",ownerId:userId})
         // 3 NFT铸造卡
         cardList.push({id:uuidv4(),name:"Make CS NFT",count:-1,type:3,coverURL: "res/img/make_nft_1/card_cover.png",backCoverURL: "res/img/make_nft_1/card_back_cover.png",ownerId:userId})
         // 4 Discord 邀请卡
