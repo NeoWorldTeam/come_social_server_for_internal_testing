@@ -15,10 +15,10 @@ let getUserCardList = function (userId) {
         //初始化卡片
         
         // 1 面具卡
-        cardList.push({id:uuidv4(),name:"Blue Hair Boy",count:-1,type:1,coverURL: "res/img/mask_1/card_cover.png",backCoverURL: "res/img/mask_1/card_back_cover.png",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Blond Girl",count:-1,type:1,coverURL: "res/img/mask_2/card_cover.png",backCoverURL: "res/img/mask_2/card_back_cover.png",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"African Style",count:-1,type:1,coverURL: "res/img/mask_3/card_cover.png",backCoverURL: "res/img/mask_3/card_back_cover.png",ownerId:userId})
-        cardList.push({id:uuidv4(),name:"Smirky Cat",count:-1,type:1,coverURL: "res/img/mask_4/card_cover.png",backCoverURL: "res/img/mask_4/card_back_cover.png",ownerId:userId})
+        cardList.push({id:uuidv4(),name:"Blue Hair Boy",count:-1,type:1,coverURL: "res/img/mask_1/card_cover.png",backCoverURL: "res/img/mask_1/card_back_cover.png",ownerId:userId,params:[{name:"asseturl",value:"res/assetbundle/man_face.zip"}]})
+        cardList.push({id:uuidv4(),name:"Blond Girl",count:-1,type:1,coverURL: "res/img/mask_2/card_cover.png",backCoverURL: "res/img/mask_2/card_back_cover.png",ownerId:userId,params:[{name:"asseturl",value:"res/assetbundle/man_face.zip"}]})
+        cardList.push({id:uuidv4(),name:"African Style",count:-1,type:1,coverURL: "res/img/mask_3/card_cover.png",backCoverURL: "res/img/mask_3/card_back_cover.png",ownerId:userId,params:[{name:"asseturl",value:"res/assetbundle/man_face.zip"}]})
+        cardList.push({id:uuidv4(),name:"Smirky Cat",count:-1,type:1,coverURL: "res/img/mask_4/card_cover.png",backCoverURL: "res/img/mask_4/card_back_cover.png",ownerId:userId,params:[{name:"asseturl",value:"res/assetbundle/man_face.zip"}]})
         // 2 Party卡
         cardList.push({id:uuidv4(),name:"Wigggle Time",count:-1,type:2,coverURL: "res/img/party_1/card_cover.png",backCoverURL: "res/img/party_1/card_back_cover.png",ownerId:userId})
         cardList.push({id:uuidv4(),name:"Truth",count:-1,type:2,coverURL: "res/img/truth_1/card_cover.png",backCoverURL: "res/img/truth_1/card_back_cover.png",ownerId:userId})
