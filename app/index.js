@@ -134,9 +134,9 @@ router.get('/fields/:id/agora', async ctx => {
 //轮询 同步场的状态
 //同步自身在线状态
 //同步其他用户在线状态
-//同步
+//同步 tick
 router.get('/fields/:id/players', (ctx, next) => {
-  console.log('POST /fields/:id/players')
+  console.log('GET /fields/:id/players')
   const {userToken,timeStamp} = ctx.query
   const {id} = ctx.params
 
@@ -148,6 +148,36 @@ router.get('/fields/:id/players', (ctx, next) => {
     }else{
       ctx.body = create_data(data)
     }
+  }else{
+    ctx.body = error_back(10001)
+  }
+})
+
+
+
+//发送数据
+router.post('/fields/:id/messages', async ctx => {
+  console.log('POST /fields/:id/messages')
+  var {userToken,content,target} = ctx.request.body
+  const { id } = ctx.params 
+  if(userToken && userToken != ""){
+    if (target == "all") {
+      let {error,data} = lobby_service.sendMessageToAll(userToken,id,content)
+      if(error) {
+        ctx.body = error_back(error)
+      }else{
+        ctx.body = create_data(data)
+      }
+    }else {
+      var targetId = parseInt(target);
+      let {error,data} = lobby_service.sendMessageToOne(userToken,id,content,targetId)
+      if(error) {
+        ctx.body = error_back(error)
+      }else{
+        ctx.body = create_data(data)
+      }
+    }
+    
   }else{
     ctx.body = error_back(10001)
   }

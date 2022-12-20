@@ -10,11 +10,13 @@ const fieldStatusMap = {}
 //场内玩家
 const lobbyPlayersCache = {}
 
+//场内消息
+const messageCache = {}
 
 
 
-
-
+//1 << 2 用户消息更新
+const FieldStateMessage = 1 << 2
 //1 << 1 在线用户更新
 const FieldStateOnlinePlayer = 1 << 1
 //1 << 0 场自身状态
@@ -153,21 +155,16 @@ module.exports.getLobby = function(userToken,lobbyId){
 
 //拉取场的状态
 module.exports.pullFieldState = function(userToken,lobbyId,lastTimeStamp){
-    //获取场
+    //获取用户
     let {error, data:currentUser} = user_service.getUser(userToken)
     if(error){
         return {error: error, data: null}
     }
 
+    //获取场
     let fieldItem = lobbyTable.find(o => o.id === lobbyId)
     if(!fieldItem) {
         return {error: 10004,data: null}
-    }
-
-    //获取状态更新
-    let {error: fieldStateError, data: {recordStateChange,latestTimeStamp}} = getFieldState(lobbyId, lastTimeStamp)
-    if(fieldStateError){
-        return {error:fieldStateError}
     }
 
     //更新用户的onlineCount
@@ -179,8 +176,11 @@ module.exports.pullFieldState = function(userToken,lobbyId,lastTimeStamp){
         }
     }
 
-    
-
+    //获取状态更新
+    let {error: fieldStateError, data: {recordStateChange,latestTimeStamp}} = getFieldState(lobbyId, lastTimeStamp)
+    if(fieldStateError){
+        return {error:fieldStateError}
+    }
 
     //没有更新
     if(recordStateChange == 0){
@@ -195,6 +195,16 @@ module.exports.pullFieldState = function(userToken,lobbyId,lastTimeStamp){
             pullData.onlinePlayers = onlinePlayers
         }else{
             pullData.onlinePlayers = []
+        }
+    }
+
+    if(recordStateChange & FieldStateMessage){
+        let fieldMessages = messageCache[lobbyId]
+        if(fieldMessages){
+            let currentUserMessages = fieldMessages[currentUser.id]
+            if(currentUserMessages && currentUserMessages.length > 0){
+                pullData.messages = currentUserMessages.splice(0)
+            }
         }
     }
 
@@ -276,6 +286,9 @@ module.exports.QuitLobby = function(userToken,fieldId) {
     return {error: 0, data: null}
 }
 
+
+
+
 //其他玩家退出场
 module.exports.UpdateOthersQuitLobby = function(userToken,fieldId,otherId) { 
     //获取当前玩家
@@ -311,7 +324,92 @@ module.exports.UpdateOthersQuitLobby = function(userToken,fieldId,otherId) {
 }
 
 
+module.exports.sendMessageToAll = function(userToken,fieldId,content) {
+    //获取当前玩家
+    let {error, data:currentUser} = user_service.getUser(userToken)
+    if(error){
+        return {error: error, data: null}
+    }
 
+    //获取当前玩家的agoraid
+    let {error: agoraError, data: {agoraId}} = agora_service.getUserAgoraId(currentUser.id)
+    if (agoraError) {
+        return {error: agoraError}
+    }
+
+    //查找场
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
+    if(fieldIndex == -1){
+        return {error: 0, data: null}
+    }
+
+    //给场内其他用户加消息
+    var onlinePlayers = lobbyPlayersCache[fieldId]
+    onlinePlayers.forEach(user => {
+        if (user.id != currentUser.id){
+            let currentUserMessages = getUserMessageInField(user.id,fieldId)
+            currentUserMessages.push({sAgoraId:agoraId,content:content})
+        }
+    });
+    updateFieldState(fieldId,FieldStateMessage)
+    return {error: 0}
+}
+
+module.exports.sendMessageToOne = function(userToken,fieldId,content,targetId) {
+    //获取当前玩家
+    let {error, data:currentUser} = user_service.getUser(userToken)
+    if(error){
+        return {error: error, data: null}
+    }
+
+    //查找场
+    let fieldIndex = lobbyTable.findIndex( o => o.id === fieldId )
+    if(fieldIndex == -1){
+        return {error: 0, data: null}
+    }
+
+    //获取当前玩家的agoraid
+    let {error: agoraError, data: {agoraId}} = agora_service.getUserAgoraId(currentUser.id)
+    if (agoraError) {
+        return {error: agoraError}
+    }
+
+    //给场内目标用户加消息
+    var onlinePlayers = lobbyPlayersCache[fieldId]
+    let userIndex = onlinePlayers.findIndex( o => o.id === targetId )
+    if(userIndex != -1){
+        let targetUser = onlinePlayers[userIndex]
+        let currentUserMessages = getUserMessageInField(targetUser.id,fieldId)
+        currentUserMessages.push({sAgoraId:agoraId,content:content})
+    }
+
+    updateFieldState(fieldId,FieldStateMessage)
+    return {error: 0}
+}
+
+
+
+function getUserMessageInField(userId,fieldId)
+{
+    let fieldMessages = getFieldMessages(fieldId)
+    var currentUserMessages = fieldMessages[userId]
+    if (!currentUserMessages){
+        currentUserMessages = []
+        fieldMessages[userId] = currentUserMessages
+    }
+
+    return currentUserMessages
+}
+
+function getFieldMessages(fieldId) 
+{
+    var fieldMessages = messageCache[fieldId]
+    if (!fieldMessages){
+        fieldMessages = []
+        messageCache[fieldId] = fieldMessages
+    }
+    return fieldMessages
+}
 
 
 
