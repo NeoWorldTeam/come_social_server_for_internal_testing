@@ -99,8 +99,8 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             //mp4 file metadata
             // var fileInfo = fs.statSync(metadataPath);
             // var fileSize = fileInfo.size;
-            var videoAttributes = attributes(metadataPath)
-            console.log(videoAttributes);
+            // var videoAttributes = attributes(metadataPath)
+            // console.log(videoAttributes);
 
             fp.props(metadataPath).then((properties) => {
                 console.log(properties);
