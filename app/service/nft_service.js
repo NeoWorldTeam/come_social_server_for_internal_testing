@@ -23,7 +23,7 @@ function createMetaData(nft_asset_url,name,videoAttributes) {
     metadata.description = "Description for Come Social NFT"
     metadata.external_url = "https://www.neoworld.cloud/"
     metadata.name = name
-    metadata.animation_url = nft_asset_url
+    // metadata.animation_url = nft_asset_url
 
     let mediameta = {}
     mediameta.uri = nft_asset_url
