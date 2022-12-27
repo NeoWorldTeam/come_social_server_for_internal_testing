@@ -5,7 +5,6 @@ const user_service = require('./user_service.js')
 const { exec,execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
-const fp = require("fs-props");
 
 
 
@@ -18,19 +17,20 @@ function uint8arrayToStringMethod(myUint8Arr){
     return String.fromCharCode.apply(null, myUint8Arr);
 }
 
-function createMetaData(nft_asset_url,name,videoAttributes) {
+function createMetaData(nft_asset_url,name) {
     let metadata = {}
     metadata.description = "Description for Come Social NFT"
     metadata.external_url = "https://www.neoworld.cloud/"
     metadata.name = name
-    // metadata.animation_url = nft_asset_url
+    metadata.image = "http://45.32.32.246:3000/res/img/make_nft_1/card_back_cover.jpg"
+    metadata.animation_url = nft_asset_url
 
-    let mediameta = {}
-    mediameta.uri = nft_asset_url
-    mediameta.dimensions = videoAttributes.width + "x" + videoAttributes.height
-    mediameta.mimeType = videoAttributes.mimeType
-    mediameta.size = videoAttributes.size
-    metadata.media = mediameta
+    // let mediameta = {}
+    // mediameta.uri = nft_asset_url
+    // mediameta.dimensions = videoAttributes.width + "x" + videoAttributes.height
+    // mediameta.mimeType = videoAttributes.mimeType
+    // mediameta.size = videoAttributes.size
+    // metadata.media = mediameta
     return metadata
 }
 
@@ -102,25 +102,22 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             // var videoAttributes = attributes(metadataPath)
             // console.log(videoAttributes);
 
-            fp.props(metadataPath).then((properties) => {
-                console.log(properties);
-                //写配置
-                fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name,properties)),  function(err) {
-                    if (err) {
+            //写配置
+            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name)),  function(err) {
+                if (err) {
+                    NFTGeneter.progress = -1
+                    return console.error(err);
+                }
+                //写资源
+                fs.rename(metadataPath, nft_asset_path, function (err) {
+                    if(err) {
                         NFTGeneter.progress = -1
                         return console.error(err);
                     }
-                    //写资源
-                    fs.rename(metadataPath, nft_asset_path, function (err) {
-                        if(err) {
-                            NFTGeneter.progress = -1
-                            return console.error(err);
-                        }
 
-                        NFTGeneter.progress = 100
-                    })
+                    NFTGeneter.progress = 100
                 })
-            });
+            })
 
 
             
