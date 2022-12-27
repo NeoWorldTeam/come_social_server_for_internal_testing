@@ -5,11 +5,9 @@ const user_service = require('./user_service.js')
 const { exec,execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
-// const util = require('util');
+const {attributes} = require('leather')
 
 
-// const csExecFile = util.promisify(exec);
-// const csWriteFile = util.promisify(fs.writeFile);
 
 
 
@@ -20,7 +18,7 @@ function uint8arrayToStringMethod(myUint8Arr){
     return String.fromCharCode.apply(null, myUint8Arr);
 }
 
-function createMetaData(nft_asset_url,name,fileSize) {
+function createMetaData(nft_asset_url,name,videoAttributes) {
     let metadata = {}
     metadata.description = "Description for Come Social NFT"
     metadata.external_url = "https://www.neoworld.cloud/"
@@ -29,9 +27,9 @@ function createMetaData(nft_asset_url,name,fileSize) {
 
     let mediameta = {}
     mediameta.uri = nft_asset_url
-    mediameta.dimensions = "1080x1080"
-    mediameta.mimeType = "video/mp4"
-    mediameta.size = fileSize
+    mediameta.dimensions = videoAttributes.width + "x" + videoAttributes.height
+    mediameta.mimeType = videoAttributes.mime
+    mediameta.size = videoAttributes.size
     metadata.media = mediameta
     return metadata
 }
@@ -98,12 +96,14 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
                 name = "CSNFT #"+tokenId
             }
 
-            //mp4 file size
-            var fileInfo = fs.statSync(metadataPath);
-            var fileSize = fileInfo.size;
+            //mp4 file metadata
+            // var fileInfo = fs.statSync(metadataPath);
+            // var fileSize = fileInfo.size;
+            var videoAttributes = attributes(metadataPath)
+            console.log(videoAttributes);
 
             //写配置
-            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name,fileSize)),  function(err) {
+            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name,videoAttributes)),  function(err) {
                 if (err) {
                     NFTGeneter.progress = -1
                     return console.error(err);
