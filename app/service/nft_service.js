@@ -20,17 +20,17 @@ function uint8arrayToStringMethod(myUint8Arr){
     return String.fromCharCode.apply(null, myUint8Arr);
 }
 
-function createMetaData(nft_asset_url) {
+function createMetaData(nft_asset_url,name) {
     let metadata = {}
     metadata.description = "Come Socail NFT"
-    metadata.external_url = "http://45.32.32.246/uploads/index.html"
-    metadata.name = "XXXXXX"
+    metadata.external_url = "https://www.neoworld.cloud/"
+    metadata.name = name
     metadata.animation_url = nft_asset_url
     return metadata
 }
 
 //生成NFT
-module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,metadataPath){
+module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,metadataPath,name){
     let {error, data:currentUser} = user_service.getUser(userToken)
     if(error){
         return {error: error, data: null}
@@ -86,8 +86,12 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             let nft_asset_network = netowrkDomain + "/uploads/nft/assets/" + tokenId + ".mp4"
             // let nft_json_network = netowrkDomain + "/app/public/uploads/nft/" + tokenId
             
+            if (!name || name == ""){
+                name = "CSNFT #"+tokenId
+            }
+
             //写配置
-            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network)),  function(err) {
+            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name)),  function(err) {
                 if (err) {
                     NFTGeneter.progress = -1
                     return console.error(err);

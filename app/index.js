@@ -357,7 +357,7 @@ router.put('/cards/:id', async ctx => {
 
 //铸造NFT卡
 router.post('/cards/nft', async ctx => {
-    var {userToken,chain_address} = ctx.request.body
+    var {userToken,chain_address,name} = ctx.request.body
     const {metadata} = ctx.request.files
     if(userToken && userToken != "" && metadata){
       const basename = path.basename(metadata.path)
@@ -365,7 +365,7 @@ router.post('/cards/nft', async ctx => {
       const domainUrl = ctx.origin
 
       if(!chain_address) chain_address = "0x207be40d18bF12E42A2427C106c1F9198D9A8CC5"
-      let {error,data} = nft_service.generateNFT(userToken,chain_address,domainUrl,metadata.path)
+      let {error,data} = nft_service.generateNFT(userToken,chain_address,domainUrl,metadata.path,name)
       if (error) {
         ctx.body = error_back(error)
       }else{
