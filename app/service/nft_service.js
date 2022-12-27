@@ -57,8 +57,8 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             return
         }
         NFTGeneter.progress = -1
-        if(err) {
-            return console.error(err);
+        if(stderr) {
+            return console.error(stderr);
         }
 
         let tokenId = parseInt(stdout)
