@@ -5,7 +5,7 @@ const user_service = require('./user_service.js')
 const { exec,execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
-const {attributes} = require('leather')
+const fp = require("fs-props");
 
 
 
@@ -28,7 +28,7 @@ function createMetaData(nft_asset_url,name,videoAttributes) {
     let mediameta = {}
     mediameta.uri = nft_asset_url
     mediameta.dimensions = videoAttributes.width + "x" + videoAttributes.height
-    mediameta.mimeType = videoAttributes.mime
+    mediameta.mimeType = videoAttributes.mimeType
     mediameta.size = videoAttributes.size
     metadata.media = mediameta
     return metadata
@@ -102,22 +102,28 @@ module.exports.generateNFT = function(userToken,chain_address,netowrkDomain,meta
             var videoAttributes = attributes(metadataPath)
             console.log(videoAttributes);
 
-            //写配置
-            fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name,videoAttributes)),  function(err) {
-                if (err) {
-                    NFTGeneter.progress = -1
-                    return console.error(err);
-                }
-                //写资源
-                fs.rename(metadataPath, nft_asset_path, function (err) {
-                    if(err) {
+            fp.props(metadataPath).then((properties) => {
+                console.log(properties);
+                //写配置
+                fs.writeFile(nft_json_path, JSON.stringify(createMetaData(nft_asset_network,name,properties)),  function(err) {
+                    if (err) {
                         NFTGeneter.progress = -1
                         return console.error(err);
                     }
+                    //写资源
+                    fs.rename(metadataPath, nft_asset_path, function (err) {
+                        if(err) {
+                            NFTGeneter.progress = -1
+                            return console.error(err);
+                        }
 
-                    NFTGeneter.progress = 100
+                        NFTGeneter.progress = 100
+                    })
                 })
-            })
+            });
+
+
+            
         })
 
     })
