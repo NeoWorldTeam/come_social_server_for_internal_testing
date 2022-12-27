@@ -22,7 +22,7 @@ function uint8arrayToStringMethod(myUint8Arr){
 
 function createMetaData(nft_asset_url,name) {
     let metadata = {}
-    metadata.description = "Come Socail NFT"
+    metadata.description = "Description for Come Social NFT"
     metadata.external_url = "https://www.neoworld.cloud/"
     metadata.name = name
     metadata.animation_url = nft_asset_url

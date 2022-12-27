@@ -357,6 +357,7 @@ router.put('/cards/:id', async ctx => {
 
 //铸造NFT卡
 router.post('/cards/nft', async ctx => {
+    console.log('POST /cards/nft')
     var {userToken,chain_address,name} = ctx.request.body
     const {metadata} = ctx.request.files
     if(userToken && userToken != "" && metadata){
