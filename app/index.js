@@ -560,7 +560,7 @@ app.listen(3000, () => {
 //init data
 let {error,data} = user_service.generateUser("你好")
 if(!error) {
-  let {data:feildModel } = lobby_service.createLobby(data.token,"默认场",1)
+  let {data:feildModel } = lobby_service.createLobby(data.token,"default",1)
   if(feildModel){
     console.log("id:",feildModel.id)
   }
