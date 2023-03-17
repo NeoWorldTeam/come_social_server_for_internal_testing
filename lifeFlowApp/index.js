@@ -176,7 +176,7 @@ router.get('/realState', async ctx => {
   let result = {channel:_channelModel, lifeFlow:_lifeFlowModel, channelStateTimeStamp : _channelStateTimeStamp, lifeFlowTimeStamp: _lifeFlowTimeStamp}
   //打印result
   var jsonString = JSON.stringify(result);
-  print(jsonString);
+  console.log(jsonString);
 
 
   ctx.body = create_data(result)

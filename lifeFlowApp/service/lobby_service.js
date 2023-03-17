@@ -163,7 +163,7 @@ module.exports.getChannelUpdate = function(userToken, timeStamp){
     return {error: null, data: null}
 }
 
-var lifeFlowMessages = []
+
 
 //从后往前取lifeFlowMessages内的数据
 // timeStamp 为最旧的时间戳,结束取数据的时间戳
@@ -171,13 +171,18 @@ var lifeFlowMessages = []
 // 返回的数据从lifeFlowMessages中slice出的数据
 function _getLifeFlowData(timeStamp, count){
     var sliceCount = 0
-    for (let index = lifeFlowMessages.length - 1; index >= 0; index--) {
-        const element = lifeFlowMessages[index];
+    var startIndex = 0
+    for (let index = lifeFlowQueue.length - 1; index >= 0; index--) {
+        const element = lifeFlowQueue[index];
+        startIndex = index
         sliceCount++;
+
         if(element.timeStamp <= timeStamp || sliceCount >= count){
-            return lifeFlowMessages.slice(index + 1, index + sliceCount)
+            break
         }
     }
+
+    return lifeFlowQueue.slice(startIndex, startIndex + sliceCount)
 }
 
 
@@ -189,7 +194,7 @@ module.exports.getLifeFlowUpdate = function(userToken, timeStamp){
     }
 
     if(lifeFlowUpdateTimeStamp > timeStamp){
-        return {error: null, data: _getLifeFlowData(timeStamp,20)}
+        return {error: null, data: _getLifeFlowData(timeStamp,20), timeStamp: lifeFlowUpdateTimeStamp}
     }
 
     return {error: null, data: null}
@@ -203,11 +208,13 @@ module.exports.pushLifeFlow = function(userToken, message){
         return {error: userError1, data: null}
     }
 
+    const resource =  JSON.parse(message)
     console.log("生活流素材-加入队列")
-    console.log("speechs",message.speechs)
-    console.log("place",message.place)
-    console.log("time",message.time)
-    unHandleLifeFlowQueue.push({userId: userModel1.id, message: message})
+    console.log("speechs",resource.speechs)
+    console.log("place",resource.place)
+    console.log("time",resource.time)
+    unHandleLifeFlowQueue.push({userId: userModel1.id,userName: userModel1.name, message: resource})
+    return {error: null, data: null}
 }
 
 
@@ -308,20 +315,26 @@ module.exports.handleChannelState = function() {
 
 
 //生成生活流
-async function _createLifeFlow(userId, message){
-    const speech_contents = message.speechs.map(obj => obj.content)
+async function _createLifeFlow(userId, userName, message){
+
+
+    const speechs = message.speechs
+    let speech_contents = "no content"
+    if (speechs) {
+        speech_contents = speechs.map(obj => obj.content)
+    }
     const life_flow_content = speech_contents.join('')
 
     lifeFlowUpdateTimeStamp = Date.now()
-    let result = {onwerId: lifeFlowMessages.userId, title: "生活流", content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
+    let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
     return result
 }
 
 
 //异步处理生成生活流
 async function _processLifeFlow(lifeFlowResource) {
-    const lifeFlowMessage = await _createLifeFlow(lifeFlowResource.userId, lifeFlowResource.message)
-    console.log("生活流素材-处理完成")
+    const lifeFlowMessage = await _createLifeFlow(lifeFlowResource.userId, lifeFlowResource.userName, lifeFlowResource.message)
+    console.log("生活流素材-处理完成:", lifeFlowMessage)
     lifeFlowQueue.push(lifeFlowMessage)
 }
 
