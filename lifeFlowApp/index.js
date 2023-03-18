@@ -76,7 +76,16 @@ router.get('/users/temp', async ctx => {
     return
   }
 
-  ctx.body = create_data(_userModel)
+  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = lobby_service.getChannelUpdate(_userModel.token, 0)
+  if (queryError) {
+    ctx.body = error_back(queryError)
+    return
+  }
+
+  const connetState = _channelModel == null? null : {channel:_channelModel, channelStateTimeStamp : _channelStateTimeStamp}
+  const result = {userModel:_userModel, connetState:connetState}
+
+  ctx.body = create_data(result)
 })
 
 //连接其他用户
@@ -209,6 +218,26 @@ router.post('/lifeFlows', async ctx => {
 })
 
 
+//退出频道
+router.get('/channels/quit', async ctx => {
+  console.log('GET /channels/quit')
+  const {userToken} = ctx.query
+
+  let {error:checkError,data:_userToken} = checkParams(userToken)
+  if (checkError) {
+    ctx.body = error_back(10001)
+    return
+  }
+
+  var {error: queryError,data: _channelModel} = lobby_service.cancleConnect(userToken)
+  if (queryError) {
+    ctx.body = error_back(queryError)
+    return
+  }
+
+  ctx.body = create_data(null)
+})
+
 
 
 
@@ -228,7 +257,7 @@ function intervalFunc() {
   lobby_service.handleChannelState()
 }
 
-setInterval(intervalFunc, 5000);
+setInterval(intervalFunc, 2000);
 
 //启动定时任务 处理生活流 1秒10次
 function intervalFunc2() {

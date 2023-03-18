@@ -11,10 +11,10 @@ const userChannelMap = {}
 const channelUpdateTimestampMap = {}
 
 
-//用户最新的更新状态
+//在线用户时间戳
 //key 用户id
 //value 更新时间戳
-const userUpdateStatusMap = {}
+const onLineUserTimeStampMap = {}
 
 
 
@@ -56,7 +56,7 @@ function getChannelUpdateTimeStamp(channelId) {
     }
 }
 
-function setChannelUpdateTimeStamp(channelId) {
+function updateChannelStateTimeStamp(channelId) {
     channelUpdateTimestampMap[channelId] = Date.now()
 }
 
@@ -83,6 +83,7 @@ module.exports.connectUser = function(userToken, otherUserId){
         userObj = channel.playerList.find(o => o.id === userModel1.id)
     }else{
         channel = _createChannel(otherUserId)
+        userModel2.isOnline = false
         channel.playerList.push(userModel2)
         userChannelMap[otherUserId] = channel
     }
@@ -100,7 +101,7 @@ module.exports.connectUser = function(userToken, otherUserId){
     let lastChannel = userChannelMap[userModel1.id]
     if (lastChannel) {
         //更新时间戳
-        setChannelUpdateTimeStamp(lastChannel.id)
+        updateChannelStateTimeStamp(lastChannel.id)
 
         let userIndex = lastChannel.playerList.findIndex( o => o.id === userModel1.id )
         if(userIndex != -1){
@@ -109,11 +110,12 @@ module.exports.connectUser = function(userToken, otherUserId){
     }
     
     //加入新的频道
+    userModel1.isOnline = false
     channel.playerList.push(userModel1)
     userChannelMap[userModel1.id] = channel
 
     //更新时间戳
-    setChannelUpdateTimeStamp(channel.id)
+    updateChannelStateTimeStamp(channel.id)
 
     return {error: null, data: channel, timeStamp: getChannelUpdateTimeStamp(channel.id)}
 }
@@ -128,7 +130,7 @@ module.exports.cancleConnect = function(userToken){
     let lastChannel = userChannelMap[userModel1.id]
     if (lastChannel) {
         //更新时间戳
-        setChannelUpdateTimeStamp(lastChannel.id)
+        updateChannelStateTimeStamp(lastChannel.id)
 
         //从频道移除
         let userIndex = lastChannel.playerList.findIndex( o => o.id === userModel1.id )
@@ -224,7 +226,7 @@ module.exports.updateUserConnectState = function(userToken){
     if (userError1) {
         return {error: userError1, data: null}
     }
-    userUpdateStatusMap[userModel1.id] = Date.now()
+    _markUserOnLine(userModel1.id)
     return {error: null, data: null}
 }
 
@@ -247,32 +249,52 @@ module.exports.updateUserConnectState = function(userToken){
 
 
 //标记用户离线，并更新频道时间戳
-function _markUserOffline(userId, channelId){
-    userUpdateStatusMap[userId] = null
+function _markUserOffline(userId){
+    onLineUserTimeStampMap[userId] = null
 
     const channel = userChannelMap[userId]
     if (channel == null) return;
     
     let userIndex = channel.playerList.findIndex( o => o.id === userId )
-    if(userIndex != -1){
-        //将用户标记为离线
-        channel.playerList[userIndex].isOnline = false
+    if(userIndex == -1){
+        return
     }
-    channelUpdateTimestampMap[channelId] = Date.now()
+    
+    if (!channel.playerList[userIndex].isOnline) {
+        return
+    }
+
+    //将用户标记为离线
+    console.log("用户离线:",channel.playerList[userIndex].name)
+    channel.playerList[userIndex].isOnline = false
+    channelUpdateTimestampMap[channel.id] = Date.now()
 
 }
 
 //标记用户在线，并更新频道时间戳
-function _markUserOnLine(userId, channelId){   
+function _markUserOnLine(userId){   
+    
+    const currentTimeStamp = Date.now()
+    onLineUserTimeStampMap[userId] = currentTimeStamp
+
+
     const channel = userChannelMap[userId]
     if (channel == null) return;
     
     let userIndex = channel.playerList.findIndex( o => o.id === userId )
-    if(userIndex != -1){
-        //将用户标记为在线
-        channel.playerList[userIndex].isOnline = true
+    if(userIndex == -1){
+        return
     }
-    channelUpdateTimestampMap[channelId] = Date.now()
+
+    if (channel.playerList[userIndex].isOnline) {
+        return
+    }
+    //将用户标记为在线
+    console.log("用户上线:",channel.playerList[userIndex].name)
+    channel.playerList[userIndex].isOnline = true
+
+    
+    channelUpdateTimestampMap[channel.id] = currentTimeStamp
 }
 
 
@@ -288,19 +310,21 @@ module.exports.handleChannelState = function() {
     var userIds = Object.keys(userChannelMap)
 
 
-    //当用户userUpdateStatusMap的更新时间戳小于当前时间戳-10秒时,让用户离线
+    //当用户userUpdateStatusMap的更新时间戳小于当前时间戳-5秒时,让用户离线
     //时间戳阈值
-    const timeStampLimit = Date.now() - 10000
+    const timeStampLimit = Date.now() - 5000
     for (let index = 0; index < userIds.length; index++) {
         const userId = userIds[index];
-        const channelId = userChannelMap[userId].id
-        var userUpdateTimeStamp = userUpdateStatusMap[userId]
-        if(userUpdateTimeStamp){
-            if(userUpdateTimeStamp < timeStampLimit){
-                _markUserOffline(userId, channelId)
-                
-            }
+        var userUpdateTimeStamp = onLineUserTimeStampMap[userId]
+
+        if (userUpdateTimeStamp == null || userUpdateTimeStamp == undefined) {
+            continue
         }
+
+        if (userUpdateTimeStamp >= timeStampLimit) {
+            continue
+        }
+        _markUserOffline(userId)
     }
 }
 
