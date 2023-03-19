@@ -372,11 +372,12 @@ async function _createLifeFlow(userId, userName, message){
 
     //压缩内容
     const compressContentPrompt = openai_service.generateCompressionPrompt(summary)
-    const life_flow_content = await openai_service.generateContent(compressContentPrompt)
-    if (!life_flow_content) {
+    const compressContent = await openai_service.generateContent(compressContentPrompt)
+    if (!compressContent) {
         return null
     }
     console.log("压缩内容:",life_flow_content)
+    const life_flow_content = compressContent.replace(/^\n+/, '');
 
     lifeFlowUpdateTimeStamp = Date.now()
     let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}

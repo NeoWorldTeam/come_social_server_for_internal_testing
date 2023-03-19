@@ -1,0 +1,15 @@
+forever 是一个常用的 Node.js 进程管理工具，可以帮助你在后台运行 Node.js 应用程序，并在应用程序崩溃时自动重启。下面是使用 forever 的一些基本步骤：
+安装 forever，可以使用 npm 包管理器进行安装：
+npm install -g forever
+使用 forever 启动 Node.js 应用程序，例如：
+forever start server.js
+使用 forever 停止应用程序：
+forever stop server.js
+查看应用程序的状态：
+forever list
+停止所有的 Node.js 应用程序：
+forever stopall
+更多的配置和管理选项，请查看 forever 的文档。
+例如，可以使用以下命令设置 forever 的日志文件和错误日志文件：
+forever start -l forever.log -o out.log -e err.log server.js
+这将日志文件保存在 forever.log 中，并将标准输出和错误输出分别保存在 out.log 和 err.log 文件中。
