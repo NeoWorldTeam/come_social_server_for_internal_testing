@@ -335,7 +335,17 @@ module.exports.handleChannelState = function() {
 
 
 
+function _getStableAddress(place){
+    if (place.thoroughfare){
+        return place.thoroughfare
+    }
 
+    if (place.name) {
+        return place.name
+    }
+
+    return [place.country,place.administrativeArea,place.subAdministrativeArea,place.locality].join(" ")
+}
 
 
 
@@ -352,10 +362,10 @@ async function _createLifeFlow(userId, userName, message){
     }
 
     //地址生成
-    const place = message.place.name
+    const address = _getStableAddress(message.place)
 
     //场景状态判定
-    const statePrompt = openai_service.generateStatePrompt([userName], place, speech_contents)
+    const statePrompt = openai_service.generateStatePrompt([userName], address, speech_contents)
     const state = await openai_service.generateContent(statePrompt)
     if (!state) {
         return null
@@ -363,7 +373,7 @@ async function _createLifeFlow(userId, userName, message){
     console.log("场景状态:",state)
 
     //生成摘要
-    const summaryPrompt = openai_service.generateSummaryPrompt([userName], place, speech_contents, state)
+    const summaryPrompt = openai_service.generateSummaryPrompt([userName], address, speech_contents, state)
     const summary = await openai_service.generateContent(summaryPrompt)
     if (!summary) {
         return null
