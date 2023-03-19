@@ -1,6 +1,7 @@
 const { v4: uuidv4, NIL } = require('uuid')
 const agora_service = require('./agora_service.js')
 const user_service = require('./user_service.js')
+const openai_service = require('./openai_service.js')
 
 //用户所在的频道
 //key 用户id
@@ -340,14 +341,42 @@ module.exports.handleChannelState = function() {
 
 //生成生活流
 async function _createLifeFlow(userId, userName, message){
-
-
     const speechs = message.speechs
-    let speech_contents = "no content"
+    let speech_contents = ""
     if (speechs) {
         speech_contents = speechs.map(obj => obj.content)
     }
-    const life_flow_content = speech_contents.join('')
+
+    if (!speech_contents){
+        //内容为空
+    }
+
+    //地址生成
+    const place = message.place.name
+
+    //场景状态判定
+    const statePrompt = openai_service.generateStatePrompt([userName], place, speech_contents)
+    const state = await openai_service.generateContent(statePrompt)
+    if (!state) {
+        return null
+    }
+    console.log("场景状态:",state)
+
+    //生成摘要
+    const summaryPrompt = openai_service.generateSummaryPrompt([userName], place, speech_contents, state)
+    const summary = await openai_service.generateContent(summaryPrompt)
+    if (!summary) {
+        return null
+    }
+    console.log("摘要:",summary)
+
+    //压缩内容
+    const compressContentPrompt = openai_service.generateCompressionPrompt(summary)
+    const life_flow_content = await openai_service.generateContent(compressContentPrompt)
+    if (!life_flow_content) {
+        return null
+    }
+    console.log("压缩内容:",life_flow_content)
 
     lifeFlowUpdateTimeStamp = Date.now()
     let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
@@ -358,6 +387,10 @@ async function _createLifeFlow(userId, userName, message){
 //异步处理生成生活流
 async function _processLifeFlow(lifeFlowResource) {
     const lifeFlowMessage = await _createLifeFlow(lifeFlowResource.userId, lifeFlowResource.userName, lifeFlowResource.message)
+    if (!lifeFlowMessage) {
+        console.log("生活流素材-丢弃:", lifeFlowResource)
+        return
+    }
     console.log("生活流素材-处理完成:", lifeFlowMessage)
     lifeFlowQueue.push(lifeFlowMessage)
 }
