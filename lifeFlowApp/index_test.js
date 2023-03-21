@@ -9,9 +9,9 @@ const querystring = require('querystringify')
 const axios = require('axios')
 
 
-const user_service = require('../lifeFlowApp/service/user_service.js')
-const lobby_service = require('../lifeFlowApp/service/lobby_service.js')
-const agora_service = require('../lifeFlowApp/service/agora_service.js');
+const user_service = require('./service/user_service.js')
+const lobby_service = require('./service/lobby_service.js')
+const agora_service = require('./service/agora_service.js');
 const { set } = require('lodash');
 
 const app = new Koa()
@@ -82,7 +82,10 @@ router.get('/users/temp', async ctx => {
     return
   }
 
-
+  if (_channelModel != null){
+    console.log("userid:", _userModel.id, "channel: ", _channelModel.token)
+  }
+  
 
   const connetState = _channelModel == null? null : {channel:_channelModel, channelStateTimeStamp : _channelStateTimeStamp}
   const result = {userModel:_userModel, connetState:connetState}
@@ -245,7 +248,7 @@ router.get('/channels/quit', async ctx => {
 
 app.use(router.routes())
 app.use(router.allowedMethods())
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log('listening port at 3000...')
 })
 

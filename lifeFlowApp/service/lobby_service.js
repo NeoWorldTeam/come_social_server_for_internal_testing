@@ -8,6 +8,7 @@ const openai_service = require('./openai_service.js')
 //value 频道对象
 const userChannelMap = {}
 
+
 //频道最新更新时间戳
 const channelUpdateTimestampMap = {}
 
@@ -57,8 +58,15 @@ function getChannelUpdateTimeStamp(channelId) {
     }
 }
 
-function updateChannelStateTimeStamp(channelId) {
-    channelUpdateTimestampMap[channelId] = Date.now()
+function updateChannelStateTimeStamp(channelId, timeStamp) {
+    
+    if (timeStamp) {
+        channelUpdateTimestampMap[channelId] = timeStamp
+    }else{
+        channelUpdateTimestampMap[channelId] = Date.now()
+    }
+
+    console.log("更新频道:",channelId,",时间戳: ",channelUpdateTimestampMap[channelId])
 }
 
     
@@ -88,9 +96,12 @@ module.exports.connectUser = function(userToken, otherUserId){
         channel.playerList.push(userModel2)
         userChannelMap[otherUserId] = channel
     }
+
+
     //生成链接token
     let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(channel.id, userModel1.agoraId, "publisher")
     channel.token = rtcToken
+    console.log("生成链接token:",rtcToken)
 
     //已经存在
     if (userObj != null) {
@@ -106,7 +117,7 @@ module.exports.connectUser = function(userToken, otherUserId){
 
         let userIndex = lastChannel.playerList.findIndex( o => o.id === userModel1.id )
         if(userIndex != -1){
-            lastChannel.playerList.splice(userIndex, 1)    
+            lastChannel.playerList.splice(userIndex, 1)
         }
     }
     
@@ -159,6 +170,11 @@ module.exports.getChannelUpdate = function(userToken, timeStamp){
         if(lastestTimeStamp <= timeStamp){
             return {error: null, data: null}
         }
+
+        //生成链接token
+        let {error: rtcError,data:{rtcToken}} = agora_service.generateRTCToken(channel.id, userModel1.agoraId, "publisher")
+        channel.token = rtcToken
+        console.log("生成链接token:",rtcToken)
 
         return {error: null, data: channel, timeStamp: lastestTimeStamp}
     }
@@ -268,7 +284,7 @@ function _markUserOffline(userId){
     //将用户标记为离线
     console.log("用户离线:",channel.playerList[userIndex].name)
     channel.playerList[userIndex].isOnline = false
-    channelUpdateTimestampMap[channel.id] = Date.now()
+    updateChannelStateTimeStamp(channel.id)
 
 }
 
@@ -294,8 +310,7 @@ function _markUserOnLine(userId){
     console.log("用户上线:",channel.playerList[userIndex].name)
     channel.playerList[userIndex].isOnline = true
 
-    
-    channelUpdateTimestampMap[channel.id] = currentTimeStamp
+    updateChannelStateTimeStamp(channel.id, currentTimeStamp)
 }
 
 
@@ -386,8 +401,9 @@ async function _createLifeFlow(userId, userName, message){
     if (!compressContent) {
         return null
     }
+    
+    const life_flow_content = compressContent.trimStart();
     console.log("压缩内容:",life_flow_content)
-    const life_flow_content = compressContent.replace(/^\n+/, '');
 
     lifeFlowUpdateTimeStamp = Date.now()
     let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
@@ -408,10 +424,11 @@ async function _processLifeFlow(lifeFlowResource) {
 
 module.exports.handleLifeFlow = function() {   
     if(unHandleLifeFlowQueue.length > 0){
+        console.log("生活流素材-取出队列")
         var lifeFlowResource = unHandleLifeFlowQueue.shift()
         if (lifeFlowResource == null)
             return
-        
+        console.log("生活流素材-开始队列")
         _processLifeFlow(lifeFlowResource)
     }
 }
