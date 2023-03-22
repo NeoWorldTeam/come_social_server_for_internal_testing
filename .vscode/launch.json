@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/lifeFlowApp/index.js"
+            "program": "${workspaceFolder}/lifeFlowApp/index_test.js"
         }
     ]
 }

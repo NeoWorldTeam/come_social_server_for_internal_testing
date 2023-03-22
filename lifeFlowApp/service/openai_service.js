@@ -95,6 +95,51 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+// 有两段连贯记录及他们持续的时长如下，请用具有文学性的一句话概括{用户}做了什么 。回答的时候请参考例子：“{用户}在公司参加了{时长}会议”、“若雯在学校打了三小时游戏”、“锴杰在家聊了半小时天”
+
+// 记录1：
+// - 人物: 
+//   - {用户}
+// - 总结：
+//   - {场景判断} / {上一条长总结}
+// - 时长：
+//   - {时长}
+// 记录2：
+// - 人物: 
+//   - {用户}
+// - 总结：
+//   - {场景判断}
+// - 时长：
+//   - {时长}
+//长总结
+module.exports.generateLongSummaryPrompt = function (users, states, times) {
+    const subject = '有两段连贯记录及他们持续的时长如下，请用具有文学性的一句话概括{人物}做了什么 。回答的时候请参考例子：“{人物}在公司参加了{时长}会议”、“若雯在学校打了三小时游戏”、“锴杰在家聊了半小时天”'
+    const title1 = "记录1："
+    const title2 = "记录2："
+    const whoTitle = "人物："
+    const whoName = users.join("\n")
+    const timeTitle = "时长："
+    const summarilyTitle = "总结："
+
+    
+  
+    let prompt = [subject,
+                    title1,
+                    whoTitle,
+                    whoName,
+                    summarilyTitle,
+                    states[0],
+                    timeTitle,
+                    times[0],
+                    title2,
+                    whoTitle,
+                    whoName,
+                    summarilyTitle,
+                    states[1],
+                    timeTitle,
+                    times[1]].join("\n")
+    return prompt
+}
 
 //状态判定器
 module.exports.generateStatePrompt = function (users, location, text) {
@@ -108,8 +153,21 @@ module.exports.generateStatePrompt = function (users, location, text) {
   
     let prompt = [subject,title,whoTitle,whoName,whereTitle,location,textTitle,text,endTitle].join("\n")
     return prompt
-    
 }
+
+
+
+//状态对比
+module.exports.generateStateComparePrompt = function (state1, state2) {
+    const subject = "下面两份记录是在连续时间内对人物所在场景的判断，在不考虑话题变化的情况下，请问记录中的人是否在进行同一项活动？下面是记录内容。"
+    const title1 = "记录1："
+    const title2 = "记录2："
+    const endTitle = "请在以下选项中选择，并给出原因。\nA. 同一项活动，记录2中的活动与记录1中的活动是同一项活动\nB. 不同活动，记录2中的活动与记录1中的活动是不同的"
+  
+    let prompt = [subject,title1,state1,title2,state2,endTitle].join("\n")
+    return prompt
+}
+
 
 //总结
 module.exports.generateSummaryPrompt = function (users, location, text, state) {

@@ -2,6 +2,7 @@ const { v4: uuidv4, NIL } = require('uuid')
 const agora_service = require('./agora_service.js')
 const user_service = require('./user_service.js')
 const openai_service = require('./openai_service.js')
+// const redisStore = require('../utils/redis');
 
 //用户所在的频道
 //key 用户id
@@ -11,7 +12,6 @@ const userChannelMap = {}
 
 //频道最新更新时间戳
 const channelUpdateTimestampMap = {}
-
 
 //在线用户时间戳
 //key 用户id
@@ -29,6 +29,13 @@ const onLineUserTimeStampMap = {}
 
 
 
+
+//裸数据
+const rawLifeFlowQueue = []
+
+//key 用户id
+//value message
+const rawDataTempMap = {}
 
 //待处理的生活流素材队列
 const unHandleLifeFlowQueue = []
@@ -232,7 +239,7 @@ module.exports.pushLifeFlow = function(userToken, message){
     console.log("speechs",resource.speechs)
     console.log("place",resource.place)
     console.log("time",resource.time)
-    unHandleLifeFlowQueue.push({userId: userModel1.id,userName: userModel1.name, message: resource})
+    rawLifeFlowQueue.push({userId: userModel1.id,userName: userModel1.name, message: resource})
     return {error: null, data: null}
 }
 
@@ -349,8 +356,148 @@ module.exports.handleChannelState = function() {
 
 
 
+//key : 用户id
+//value : state
+var userLastStateCache = {}
 
-function _getStableAddress(place){
+
+function toMinutes(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}分钟`;
+}
+
+//生成生活流
+////{userId: userId, userName: userName, content: userPieceTempDatas.content, address: address, achieveTime: achieveTime }
+async function _createLifeFlow(lifeFlowResource){
+    const userId = lifeFlowResource.userId
+    const userName = lifeFlowResource.userName
+    const speech_contents = lifeFlowResource.content
+    const address = lifeFlowResource.address
+    const achieveTime = lifeFlowResource.achieveTime
+    const isSatisfyData = achieveTime < _achieveTime10
+    const duration = toMinutes(lifeFlowResource.achieveTime)
+
+
+    //场景状态判定
+    const statePrompt = openai_service.generateStatePrompt([userName], address, speech_contents)
+    const state = await openai_service.generateContent(statePrompt)
+    if (!state) {
+        return null
+    }
+    console.log("场景状态:",state)
+
+    //上一个状态
+    const lastStateMap = userLastStateCache[userId]
+
+    //更新状态
+    userLastStateCache[userId] = {lastState: state, lastDuration: duration}
+
+    //状态是否相同
+    let isSameState = false
+    //存在上一次状态，需要进行对比
+    if (lastStateMap) {
+        //状态对比
+        const stateComparePrompt = openai_service.generateStateComparePrompt(lastStateMap.lastState, state)
+        const stateCompare = await openai_service.generateContent(stateComparePrompt)
+        if (!stateCompare) {
+            return null
+        }
+        console.log("状态对比结果:",stateCompare)
+        isSameState = stateCompare.charAt(0) === 'A'
+    }
+
+
+    if (isSameState) {
+        //长总结
+        //users, states, times
+        const summaryPrompt = openai_service.generateLongSummaryPrompt([userName], [lastStateMap.lastState,state], [lastStateMap.lastDuration,duration])
+        const summary = await openai_service.generateContent(summaryPrompt)
+        if (!summary) {
+            return null
+        }
+        console.log("长总结:",summary)
+
+        const life_flow_content = summary.trimStart();
+        console.log("压缩内容:",life_flow_content)
+
+        lifeFlowUpdateTimeStamp = Date.now()
+        let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
+
+        return result
+    }else{
+
+        //不满足的内容量 直接返回场景状态
+        if (!isSatisfyData) {
+            const life_flow_content = state.trimStart();
+            console.log("压缩内容:",life_flow_content)
+    
+            lifeFlowUpdateTimeStamp = Date.now()
+            let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
+    
+            return result
+        }
+
+        //生成摘要
+        const summaryPrompt = openai_service.generateSummaryPrompt([userName], address, speech_contents, state)
+        const summary = await openai_service.generateContent(summaryPrompt)
+        if (!summary) {
+            return null
+        }
+        console.log("摘要:",summary)
+
+        //压缩内容
+        const compressContentPrompt = openai_service.generateCompressionPrompt(summary)
+        const compressContent = await openai_service.generateContent(compressContentPrompt)
+        if (!compressContent) {
+            return null
+        }
+        
+        const life_flow_content = compressContent.trimStart();
+        console.log("压缩内容:",life_flow_content)
+
+        lifeFlowUpdateTimeStamp = Date.now()
+        let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
+        return result
+    }
+
+
+
+
+
+}
+
+
+
+
+//异步处理生成生活流
+//{userId: userId, userName: userName, content: userPieceTempDatas.content, address: address, isSatisfyData: isSatisfyData}
+async function _processLifeFlow(lifeFlowResource) {
+    const lifeFlowMessage = await _createLifeFlow(lifeFlowResource)
+    if (!lifeFlowMessage) {
+        console.log("生活流素材-丢弃:", lifeFlowResource)
+        return
+    }
+    console.log("生活流素材-处理完成:", lifeFlowMessage)
+    lifeFlowQueue.push(lifeFlowMessage)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//解析地址
+function _getStableAddress(message){
+    if (!message) return ""
+    const place = message.place
     if (place.thoroughfare){
         return place.thoroughfare
     }
@@ -363,73 +510,101 @@ function _getStableAddress(place){
 }
 
 
-
-//生成生活流
-async function _createLifeFlow(userId, userName, message){
-    const speechs = message.speechs
+//解析说话内容
+function parseSpeechContent(message) {
     let speech_contents = ""
-    if (speechs) {
-        speech_contents = speechs.map(obj => obj.content)
+    if (message && message.speechs) {
+        speech_contents = message.speechs.map(obj => obj.content).join("。")
     }
+    return speech_contents
+}
 
-    if (!speech_contents){
-        //内容为空
+
+var _detectionTime =  5*60
+var _achieveTime10 = 10*60
+var _achieveTime8 = 8*60
+var _longAchieveTime = 20*60
+
+//content 内容
+//startTimeStamp 开始时间
+//durationTime 持续时间
+//detectionTime 检测时间 （5分钟)
+//achieveTime 获取时间（8/10分钟）
+function mergeUserPieceData(data, content, timeStamp) {
+    data.content += content
+    data.durationTime = timeStamp - data.startTimeStamp
+}
+
+function detectionRawData(data) {
+    //第一轮检查
+    if (data.durationTime >= data.detectionTime){
+        //小于400字
+        if (data.content.length < 400) {
+            data.achieveTime = _achieveTime10
+        }else if (data.content.length < 800) {
+            data.achieveTime = _achieveTime8
+        }else {
+            data.achieveTime = data.durationTime + 1
+        }
+        //不再检查
+        data.detectionTime = _longAchieveTime
+    }
+}
+ 
+//异步预处理数据
+async function _preprocessing(lifeFlowRaw) {
+
+    //数据拥有者
+    const userId = lifeFlowRaw.userId
+    if(!userId) return
+    const speech_content = parseSpeechContent(lifeFlowRaw.message)
+    const time = lifeFlowRaw.message.time
+
+    //数据更新
+    //TODO : 1. 这里最好还是改成数组 2. 丢弃合并后，后面在加入的数据
+    let userPieceTempDatas = rawDataTempMap[userId]
+    if(userPieceTempDatas){
+        mergeUserPieceData(userPieceTempDatas, speech_content, time)
+    }else {
+        userPieceTempDatas = {content:speech_content, startTimeStamp: time, detectionTime: _detectionTime, durationTime: 0, achieveTime: _achieveTime10}
+    }
+    rawDataTempMap[userId] = userPieceTempDatas
+
+    
+    //数据检查
+    detectionRawData(userPieceTempDatas)
+
+    //不满足生成
+    if (userPieceTempDatas.durationTime < userPieceTempDatas.achieveTime){
+        return
     }
 
     //地址生成
-    const address = _getStableAddress(message.place)
+    const address = _getStableAddress(lifeFlowRaw.message)
+    const userName = lifeFlowRaw.userName
 
-    //场景状态判定
-    const statePrompt = openai_service.generateStatePrompt([userName], address, speech_contents)
-    const state = await openai_service.generateContent(statePrompt)
-    if (!state) {
-        return null
-    }
-    console.log("场景状态:",state)
+    const processData = {userId: userId, userName: userName, content: userPieceTempDatas.content, address: address, achieveTime: userPieceTempDatas.achieveTime}
+    delete rawDataTempMap[userId]
 
-    //生成摘要
-    const summaryPrompt = openai_service.generateSummaryPrompt([userName], address, speech_contents, state)
-    const summary = await openai_service.generateContent(summaryPrompt)
-    if (!summary) {
-        return null
-    }
-    console.log("摘要:",summary)
-
-    //压缩内容
-    const compressContentPrompt = openai_service.generateCompressionPrompt(summary)
-    const compressContent = await openai_service.generateContent(compressContentPrompt)
-    if (!compressContent) {
-        return null
-    }
-    
-    const life_flow_content = compressContent.trimStart();
-    console.log("压缩内容:",life_flow_content)
-
-    lifeFlowUpdateTimeStamp = Date.now()
-    let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: lifeFlowUpdateTimeStamp}
-    return result
+    //加入数据到unHandleLifeFlowQueue
+    console.log("生活流预处理数据-加入队列")
+    unHandleLifeFlowQueue.push(processData)
 }
 
-
-//异步处理生成生活流
-async function _processLifeFlow(lifeFlowResource) {
-    const lifeFlowMessage = await _createLifeFlow(lifeFlowResource.userId, lifeFlowResource.userName, lifeFlowResource.message)
-    if (!lifeFlowMessage) {
-        console.log("生活流素材-丢弃:", lifeFlowResource)
-        return
-    }
-    console.log("生活流素材-处理完成:", lifeFlowMessage)
-    lifeFlowQueue.push(lifeFlowMessage)
-}
-
-module.exports.handleLifeFlow = function() {   
-    if(unHandleLifeFlowQueue.length > 0){
+module.exports.handleLifeFlow = function() {
+    do {
+        var lifeFlowResource = rawLifeFlowQueue.shift()
+        if (lifeFlowResource == null) break
         console.log("生活流素材-取出队列")
+        _preprocessing(lifeFlowResource)
+    } while(false)
+
+    do {
+        
         var lifeFlowResource = unHandleLifeFlowQueue.shift()
-        if (lifeFlowResource == null)
-            return
-        console.log("生活流素材-开始队列")
+        if (lifeFlowResource == null) break
+        console.log("生活流预处理数据-取出队列")
         _processLifeFlow(lifeFlowResource)
-    }
+    } while(false)
 }
     

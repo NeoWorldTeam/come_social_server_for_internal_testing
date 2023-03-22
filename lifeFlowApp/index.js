@@ -259,7 +259,7 @@ function intervalFunc() {
   lobby_service.handleChannelState()
 }
 
-setInterval(intervalFunc, 2000);
+setInterval(intervalFunc, 1000);
 
 //启动定时任务 处理生活流 1秒10次
 function intervalFunc2() {
