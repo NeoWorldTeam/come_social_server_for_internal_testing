@@ -1,9 +1,14 @@
 const { v4: uuidv4 } = require('uuid')
 const agora_service = require('./agora_service.js')
+const redisStore = require('../utils/redis');
+
 //用户缓存
 const userTable = []
 //用户token缓存
 const userTokenCache = {}
+
+
+
 
 //create user 
 module.exports.generateUser = function(userName) { 
