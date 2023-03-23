@@ -1,73 +1,189 @@
-const wakeUpContent = `1. 我的主人已经有十分钟没有动静了，有谁能来逗逗 Ta 吗！
-2. 你的朋友已经静默了十分钟，我想 Ta 在等待一句暖心的问候。
-3. 快来唤醒沉睡的好友！我的主人已经十分钟没有动态了哦。
-4. 我的主人已经消失了十分钟，一句话或许就能让 Ta 回到现实！
-5. 我的主人已经十分钟没有动静了，你能用语音叫醒 Ta 吗？
-6. 看起来我的主人已经十分钟没有变化，你能不能说句悄悄话，让 Ta 心情瞬间变好！
-7. 十分钟过去了，我的主人似乎陷入了沉思，快来一起探讨生活的奥秘吧！
-8. 我的主人已经十分钟没有动静，也许正需要你的一句关心。
-9. 你的朋友已消失了十分钟，不妨点击语音，开启新的话题吧！
-10. 你的朋友已经十分钟没动静了，试试用一句抛砖引玉的话语开始语音聊天吧！
-11. 请给静默十分钟的朋友发起一次语音吧，Ta 一直等待那个与你相谈甚欢的瞬间。
-12. 十分钟无声无息，快来用你的声音唤醒我的主人吧！
-13. 你的朋友已经十分钟没说话了，现在是时候来一句搞笑的话了！
-14. 我的主人怎么一直没动静，怎么办怎么办？！
-15. 你的朋友已经消失十分钟了，发起一个语音聊天，探讨一下最近的热门话题吧！
-16. 给静默十分钟的主人发起语音，说说你今天的有趣经历吧。
-17. 我的主人已沉默十分钟，用一段轻松的歌声开启新的聊天吧！
-18. 尝试与静默十分钟的朋友进行一场头脑风暴，看看能激发出什么有趣的想法！
-19. 我的主人已经十分钟无声无息，试试问问 Ta 最近看了什么好电影吧！
-20. 我的主人已沉默十分钟，与 Ta 进行一次语音聊天，谈谈日常生活怎么样？
-21. 我的主人已经十分钟没有说话了，快来用一个谜语开始一场有趣的语音聊天吧！
-22. 我的主人已经沉默了十分钟，发起语音聊天，与 Ta 一起分享你最近的小确幸。
-23. 你的朋友沉默了十分钟，试试用一段有趣的声音唤醒 Ta 的好奇心！
-24. 已经十分钟没有动静了，来聊聊天吧，一起回忆那些美好的时光。
-25. 我的主人静默了十分钟，快来用你的声音带给 Ta 温暖的问候。
-26. 你的朋友已经沉默了十分钟，邀请 Ta 一起加入语音聊天，谈谈对未来的期许。
-27. 我的主人已经十分钟没说话了，与 Ta 进行语音聊天，一起探讨最近的科技新闻。
-28. 沉默了十分钟的主人，试试唱首歌，用你的声音给 Ta 带来惊喜好么~
-29. 已经十分钟没动静的主人，现在是时候给 Ta 分享一个趣闻轶事了！
-30. 我的主人已消失了十分钟，你能用你的声音制造一次惊喜吗？
-31. 十分钟过去了，我的主人似乎需要一句问候来改变 Ta 的情绪。
-32. 我的主人已经十分钟没有动静，发起一个语音聊天，和 Ta 分享你的生活感悟吧！
-33. 十分钟的静默，可能意味着你的朋友需要一个鼓励的声音，不如用你的声音来支持 Ta 吧！
-34. 你的朋友已经十分钟没动静了，发起一次语音聊天，分享你最喜欢的音乐吧！
-35. 我的主人已经沉默十分钟了，用一句温暖的问候来打破这份寂静吧。
-36. 十分钟的静默，也许就需要一句简单却深入的问候，来唤起 Ta 的情绪。
-37. 我的主人已经十分钟没有发言了，不妨大声地读出你的一篇文章，来激发 Ta 的灵感吧！
-38. 十分钟的沉默，也许就需要一首歌来填补空虚，试试这个方法吧！
-39. 你的朋友已经十分钟不说话了，不妨发起一场通话，直接问问 Ta 最近的感受如何。
-40. 你的朋友已经消失了十分钟，你能用你的声音给 Ta 最好的建议吗？
-41. 我的主人已经沉默了十分钟，发起一个语音聊天，谈谈最近的旅行计划吧！
-42. 十分钟的寂静，也许只需要一句简单的问候，来让 Ta 感受到你的关心。
-43. 你的朋友已经十分钟没动静了，发起一个有趣的游戏，一起打发时间吧！
-44. 我的主人已经沉默了十分钟，用一句振奋人心的话来鼓励 Ta 吧！
-45. 已经十分钟没有动态了，试试用一句让 Ta 好笑的话来打破尴尬。
-46. 我的主人已经静默了十分钟，用一句感性的话语，让 Ta 感受到你对友谊的珍视。
-47. 你的朋友已经十分钟没说话了，试试分享一些有趣的新闻，来激发 Ta 的好奇心吧！
-48. 我的主人已经十分钟没有动静，来尝试一场有趣的问答，燃起 Ta 的思考火花！
-49. 已经十分钟没有声音了，不如切入主题，一起讨论最近的热门事件吧！
-50. 我的主人已经沉默了十分钟，不如用一段有趣的故事来让 Ta 心情愉悦起来。
-51. 十分钟的静默，或许需要一段轻松愉快的笑话来打破僵局，试试这个方法吧！
-52. 你的朋友已经十分钟没动静了，不妨用一句感激的话来表达你对 Ta 的支持和照顾。
-53. 我的主人已经消失了十分钟，试试用一句出乎意料的问候，给 Ta 一个惊喜吧！
-54. 十分钟的静默，不妨送出一句暖心的请假语，让 Ta 感受到你的关怀和理解。
-55. 你的朋友已经沉默了十分钟，发送一段小小的神秘声音，让 Ta 充满惊喜吧！
-56. 我的主人已经十分钟没有动静，不妨给 Ta 送出一句感情问候，让 Ta 感受到你的在乎。
-57. 十分钟无声无息，不妨放一首舒缓的音乐，让 Ta 放松身心，愉悦心情。
-58. 你的朋友已经消失十分钟了，快来分享一些有趣的生活经历，照亮 Ta 的心灵吧！
-59. 我的主人已经沉默了十分钟，试试用一句热情活泼的话语，来调动 Ta 的积极性吧！`;
-
-const dataArray = wakeUpContent.split("\n").map((line) => {
-    const data = line.split(". ")[1];
-    return data
-});
-console.log(dataArray);
-let index = 0;
-const dataArray2  = dataArray.map((item) => {
-    index++;
-    return { data: item, probability: index / dataArray.length };
-});
+// const Koa = require('koa');
+// const Router = require('koa-router');   
+// const views = require('koa-views');
+// const path = require('path')
 
 
-console.log(dataArray2);
+
+// const bodyParser = require('koa-bodyparser');
+
+// const app = new Koa();
+// const router = new Router();
+
+
+
+// app.use(views(path.join(__dirname, './views'), {
+//     extension: 'ejs'
+// }))
+
+// // 定义数据源，这里是一个简单的假数据
+// const data = [
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//   { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+//     { title: 'Data 1', description: 'This is data 1.' },
+//   { title: 'Data 2', description: 'This is data 2.' },
+//   { title: 'Data 3', description: 'This is data 3.' },
+// ];
+
+// console.log("__dirname:",__dirname)
+
+
+// // 定义分页数量
+// const perPage = 20;
+
+// // 显示数据列表和分页
+// router.get('/show', async (ctx) => {
+//   //获取当前页数
+//   const currentPage = ctx.query.page || 1;
+
+//   // 计算总页数
+//   const totalPages = Math.ceil(data.length / perPage);
+
+//   // 获取当前页应该展示的数据
+//   const startIndex = (currentPage - 1) * perPage;
+//   const endIndex = startIndex + perPage;
+//   const currentData = data.slice(startIndex, endIndex);
+
+//   await ctx.render('index', {
+//     data: currentData,
+//     currentPage: parseInt(currentPage),
+//     totalPages: totalPages,
+//     totalPages,
+//   });
+
+
+// });
+
+// app.use(bodyParser());
+// app.use(router.routes());
+// app.use(router.allowedMethods());
+
+// const server = app.listen(3001, () => {
+//   console.log('Server listening on port 3001');
+// });
+
+
+import { createClient } from 'redis';
+
+const client = createClient();
+
+client.on('error', err => console.log('Redis Client Error', err));
+client.on('connect', err => console.log('Redis Client connect', err));
+client.on('ready', err => console.log('Redis Client ready	', err));
+
+await client.connect();
+
+await client.set('key', 'value');
+const value = await client.get('key');
+
+
+// await client.set('names', 'value');
+
+client.del('names')
+const len = await client.lLen('lifeFlowQueue')
+console.log(len)
+
+for (let i = 0; i < 100; i++) {
+    client.rPush('names', 'Flavio' + i)
+}
+
+
+
+const length = await client.lLen("names")
+console.log(length)
+
+const result = await client.lRange('names', 0, -1)
+console.log(result)
+
+const result3 = await client.lRange('names', 1, 2)
+console.log(result3)
+
+const result2 = await client.lRange('names', -1000, -200)
+console.log(result2)
+
+await client.disconnect();    
+
+
+
+// console.log('connected');
+
+
+// client.lPush('names', 'Flavio1')
+// client.lPush('names', 'Flavio2')
+// client.lPush('names', 'Flavio3')
+// client.lPush('names', 'Flavio4')
+// const result = await client.lRange('names', 0, -1)
+// print(result)
+
+
+
+
+// // 添加数据到列表中
+// client.lpush('myList', 'item1', 'item2', 'item3', (error, length) => {
+//   if (error) {
+//     console.error(error);
+//   } else {
+//     console.log(`${length} items added to the list`);
+//   }
+// });
+
+// // 获取列表长度
+// client.llen('myList', (error, length) => {
+//   if (error) {
+//     console.error(error);
+//   } else {
+//     console.log(`List length is ${length}`);
+//   }
+// });
+
+// // 获取指定范围内的列表元素
+// client.lrange('myList', 0, -1, (error, items) => {
+//   if (error) {
+//     console.error(error);
+//   } else {
+//     console.log(`List items: ${items}`);
+//   }
+// });
+
+// // 弹出列表中的元素
+// client.lpop('myList', (error, item) => {
+//   if (error) {
+//     console.error(error);
+//   } else {
+//     console.log(`Popped item: ${item}`);
+//   }
+// });

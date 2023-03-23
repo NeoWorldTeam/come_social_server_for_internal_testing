@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>数据列表</title>
+	<style>
+		/* 样式可以根据自己的需要进行修改 */
+		.container {
+			display: table;
+			flex-wrap: wrap;
+      width: 100%;
+      /* background: #007bff; */
+			
+		}
+		.item {
+			width: 90%;
+			margin: 20px;
+			padding: 10px;
+      /* justify-content: center;   */
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+
+
+
+		.page-link {
+			display: inline-block;
+			padding: 5px;
+			margin: 5px;
+			background-color: #eee;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			text-decoration: none;
+			color: #333;
+		}
+		.page-link.active {
+			background-color: #007bff;
+			border-color: #007bff;
+			color: #fff;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<% data.forEach(function(item) { %>
+			<div class="item">
+
+        <h3><%= item.title %></h3>
+        <p><%= item.content %></p>
+        <p><%= item.rawContent %></p>
+
+			</div>
+		<% }); %>
+	</div>
+	<div class="pagination">
+		<% for (var i = 1; i <= totalPages; i++) { %>
+			<% if (i === currentPage) { %>
+				<span class="page-link active"><%= i %></span>
+			<% } else { %>
+				<a class="page-link" href="?page=<%= i %>"><%= i %></a>
+			<% } %>
+		<% } %>
+	</div>
+	<script>
+		// 从URL中获取当前页码
+		var currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+		// 设置每页展示的数据数量
+		var pageSize = 20;
+	</script>
+</body>
+</html>

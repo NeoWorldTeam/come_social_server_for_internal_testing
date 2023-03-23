@@ -3,16 +3,12 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const koaStatic = require('koa-static')
 const koaBody = require('koa-body')
+const views = require('koa-views');
 
+const user_service = require('../lifeFlowApp/service/user_service.js')
+const channel_service = require('../lifeFlowApp/service/channel_service.js')
+const lifeflow_service = require('../lifeFlowApp/service/lifeflow_service.js');
 
-const querystring = require('querystringify')
-const axios = require('axios')
-
-
-const user_service = require('./service/user_service.js')
-const lobby_service = require('./service/lobby_service.js')
-const agora_service = require('./service/agora_service.js');
-const { set } = require('lodash');
 
 const app = new Koa()
 const router = new Router();
@@ -33,7 +29,9 @@ app.use(koaBody({
 }));
 
 
-
+app.use(views(path.join(__dirname, './views'), {
+  extension: 'ejs'
+}))
 
 
 const error_back = function(code) {
@@ -57,6 +55,18 @@ const checkParams = function(params) {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 //10001 参数错误
 //通过传递用户名登录
 //同时过得自己的连接状态
@@ -76,16 +86,13 @@ router.get('/users/temp', async ctx => {
     return
   }
 
-  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = lobby_service.getChannelUpdate(_userModel.token, 0)
+  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = channel_service.getChannelUpdate(_userModel.token, 0)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
   }
 
-  if (_channelModel != null){
-    console.log("userid:", _userModel.id, "channel: ", _channelModel.token)
-  }
-  
+
 
   const connetState = _channelModel == null? null : {channel:_channelModel, channelStateTimeStamp : _channelStateTimeStamp}
   const result = {userModel:_userModel, connetState:connetState}
@@ -111,7 +118,7 @@ router.get('/users/:connectUserId', async ctx => {
     return
   }
 
-  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = lobby_service.connectUser(userToken, _connectUserId)
+  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = channel_service.connectUser(userToken, _connectUserId)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
@@ -136,7 +143,7 @@ router.get('/users/quitChannel', async ctx => {
   }
 
 
-  var {error: queryError,data: _channelModel} = lobby_service.cancleConnect(userToken)
+  var {error: queryError,data: _channelModel} = channel_service.cancleConnect(userToken)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
@@ -169,19 +176,19 @@ router.get('/realState', async ctx => {
     return
   }
 
-  const {error:checkError2,data:_nothing} = lobby_service.updateUserConnectState(userToken) 
+  const {error:checkError2,data:_nothing} = channel_service.updateUserConnectState(userToken) 
   if (checkError2) {
     ctx.body = error_back(10001)
     return
   }
 
-  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = lobby_service.getChannelUpdate(userToken, channelTimeStamp)
+  var {error: queryError,data: _channelModel, timeStamp: _channelStateTimeStamp} = channel_service.getChannelUpdate(userToken, channelTimeStamp)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
   }
   
-  var {error: queryError2,data: _lifeFlowModel, timeStamp: _lifeFlowTimeStamp} = lobby_service.getLifeFlowUpdate(userToken, lifeFlowTimeStamp)
+  var {error: queryError2,data: _lifeFlowModel, timeStamp: _lifeFlowTimeStamp} = await lifeflow_service.getLifeFlowUpdate(userToken, lifeFlowTimeStamp)
   if (queryError2) {
     ctx.body = error_back(queryError2)
     return
@@ -213,7 +220,7 @@ router.post('/lifeFlows', async ctx => {
     return
   }
 
-  var {error: queryError,data: _lifeFlowModel} = lobby_service.pushLifeFlow(userToken, _content)
+  var {error: queryError,data: _lifeFlowModel} = lifeflow_service.pushLifeFlow(userToken, _content)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
@@ -234,7 +241,7 @@ router.get('/channels/quit', async ctx => {
     return
   }
 
-  var {error: queryError,data: _channelModel} = lobby_service.cancleConnect(userToken)
+  var {error: queryError,data: _channelModel} = channel_service.cancleConnect(userToken)
   if (queryError) {
     ctx.body = error_back(queryError)
     return
@@ -246,10 +253,73 @@ router.get('/channels/quit', async ctx => {
 
 
 
+
+
+
+
+
+
+
+
+console.log("__dirname:",__dirname)
+// 定义分页数量
+const perPage = 20;
+// 显示数据列表和分页
+router.get('/show', async (ctx) => {
+  //获取当前页数
+  const currentPage = ctx.query.page || 1;
+
+  const data = await lifeflow_service.getReverseLifeFlowByIndex((currentPage -1)*perPage, perPage)
+  const rawData = await lifeflow_service.getReverseLifeFlowRawByIndex((currentPage -1)*perPage, perPage)
+  // 计算总页数
+  const totalPages = Math.ceil(data.length / perPage);
+
+  // 获取当前页应该展示的数据
+  // const startIndex = (currentPage - 1) * perPage;
+  // const endIndex = startIndex + perPage;
+  // const currentData = data.slice(startIndex, endIndex);
+  var currentData = []
+  for (var i = data.length - 1; i >= 0; i--) {
+    currentData.push({title: data[i].title, content: data[i].content, rawContent: rawData[i].content})
+  }
+
+  await ctx.render('index', {
+    data: currentData,
+    currentPage: parseInt(currentPage),
+    totalPages: totalPages,
+    totalPages,
+  });
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.use(router.routes())
 app.use(router.allowedMethods())
 app.listen(3001, () => {
-  console.log('listening port at 3000...')
+  console.log('listening port at 3001...')
 })
 
 
@@ -259,14 +329,14 @@ console.log("userId:" + data.id)
 
 //5秒一次 启动定时任务 更新频道状态 
 function intervalFunc() {
-  lobby_service.handleChannelState()
+  channel_service.handleChannelState()
 }
 
 setInterval(intervalFunc, 2000);
 
 //启动定时任务 处理生活流 1秒10次
 function intervalFunc2() {
-  lobby_service.handleLifeFlow()
+  lifeflow_service.handleLifeFlow()
 }
 
 setInterval(intervalFunc2, 100);

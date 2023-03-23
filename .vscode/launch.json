@@ -12,6 +12,24 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/lifeFlowApp/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/lifeFlowApp/index_test.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test Program2",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/lifeFlowApp/test/test.js"
         }
     ]
 }
