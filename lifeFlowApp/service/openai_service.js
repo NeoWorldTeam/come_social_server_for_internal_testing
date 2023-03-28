@@ -96,6 +96,28 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 
+// 下面两份记录是在连续时间内对人物所在场景的判断，在不考虑话题变化的情况下，请问记录中的人是否在进行同一项活动？下面是记录内容。
+
+// 记录1：
+// - {场景判定}
+// 记录2：
+// - {场景判定}
+
+// 请在以下选项中选择，并给出原因。
+
+// A. 同一项活动，记录2中的活动与记录1中的活动是同一项活动
+// B. 不同活动，记录2中的活动与记录1中的活动是不同的
+
+module.exports.generateStateComparePrompt = function(lastState, state) {
+    const subject = "下面两份记录是在连续时间内对人物所在场景的判断，在不考虑话题变化的情况下，请问记录中的人是否在进行同一项活动？下面是记录内容。"
+    const title1 = "记录1"
+    const title2 = "记录2"
+    const endTitle = "请在以下选项中选择，并给出原因。\nA. 同一项活动，记录2中的活动与记录1中的活动是同一项活动\nB. 不同活动，记录2中的活动与记录1中的活动是不同的"
+    let prompt = [subject,title1,lastState,title2,state,endTitle].join("\n")
+    return prompt
+}
+
+
 //状态判定器
 module.exports.generateStatePrompt = function (users, location, text) {
     const subject = "下面是一份记录，请根据记录，判断记录中的人在什么场景中。回答的时候请使用一个介词短语，比如“在大礼堂发表关于城市规划的演讲”、“在客厅谈论周末的旅行”、“在KTV唱周杰伦的歌曲”、“在电脑前完成老板临时布置的工作”、“在家里和朋友们一起吃饭”、“在电影院看新上映的电影”。"

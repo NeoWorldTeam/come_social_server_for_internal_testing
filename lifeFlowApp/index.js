@@ -259,20 +259,21 @@ router.get('/channels/quit', async ctx => {
 
 
 
-
-
 console.log("__dirname:",__dirname)
 // 定义分页数量
-const perPage = 20;
+const perPage = 10;
 // 显示数据列表和分页
 router.get('/show', async (ctx) => {
   //获取当前页数
   const currentPage = ctx.query.page || 1;
 
-  const data = await lifeflow_service.getReverseLifeFlowByIndex((currentPage -1)*perPage, perPage)
 
+  const dataLen = await lifeflow_service.getLifeFlowQueueLength()
+  const data = await lifeflow_service.getReverseLifeFlowByIndex((currentPage -1)*perPage, perPage)
+  const rawData = await lifeflow_service.getReverseLifeFlowRawByIndex((currentPage -1)*perPage, perPage)
+  const logs = await lifeflow_service.getReverseLifeFlowLogsByIndex((currentPage -1)*perPage, perPage)
   // 计算总页数
-  const totalPages = Math.ceil(data.length / perPage);
+  const totalPages = Math.ceil(dataLen / perPage);
 
   // 获取当前页应该展示的数据
   // const startIndex = (currentPage - 1) * perPage;
@@ -280,7 +281,7 @@ router.get('/show', async (ctx) => {
   // const currentData = data.slice(startIndex, endIndex);
   var currentData = []
   for (var i = data.length - 1; i >= 0; i--) {
-    currentData.push(data[i])
+    currentData.push({title: data[i].title, content: data[i].content, rawContent: rawData[i].content,log: logs[i]})
   }
 
   await ctx.render('index', {
@@ -292,6 +293,8 @@ router.get('/show', async (ctx) => {
 
 
 });
+
+
 
 
 

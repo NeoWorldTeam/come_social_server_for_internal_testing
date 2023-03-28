@@ -19,8 +19,11 @@
       /* justify-content: center;   */
 			border: 1px solid #ccc;
 			border-radius: 5px;
+			
 		}
-
+		.spacece {
+			white-space: pre-line;
+		}
 
 
 
@@ -39,6 +42,11 @@
 			border-color: #007bff;
 			color: #fff;
 		}
+
+		p {
+			color: #333; /* 设置默认颜色为深灰色 */
+		}
+
 	</style>
 </head>
 <body>
@@ -46,14 +54,28 @@
 		<% data.forEach(function(item) { %>
 			<div class="item">
 
-        <h3><%= item.title %></h3>
-        <p><%= item.content %></p>
-        <p><%= item.rawContent %></p>
+			<h3><%= item.title %></h3>
+			<h2>内容</h2>
+			<p><%= item.content %></p>
+			<h2>原始内容</h2>
+			<p><%= item.rawContent %></p>
+			<h2>生成过程</h2>
+			<% let logIndex = 1 %>
+			<% Object.values(item.log).forEach(function(logItem) { %>
+				
+				<p><b><%= (logIndex++) + "." + logItem.name %></b></p>
+				<div class="spacece">
+					<p><b>提示词:</b> <%= logItem.prompt %></p>
+				</div>
+				
+				<p><b>生成结果:</b> <%= logItem.result %></p>
+			<% }); %>
 
-			</div>
+		</div>
 		<% }); %>
 	</div>
 	<div class="pagination">
+		
 		<% for (var i = 1; i <= totalPages; i++) { %>
 			<% if (i === currentPage) { %>
 				<span class="page-link active"><%= i %></span>

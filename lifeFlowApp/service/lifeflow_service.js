@@ -58,6 +58,10 @@ async function _getReverseLifeFlowByIndex(index, count){
     return objArr
 }
 
+module.exports.getLifeFlowQueueLength = async function() {
+    return await redisStore.lLen("lifeFlowQueue")
+}
+
 
 //根据index 和 count 获取倒序生活流数据
 module.exports.getReverseLifeFlowByIndex = async function(index, count) {
@@ -78,16 +82,34 @@ module.exports.getReverseLifeFlowRawByIndex = async function(index, count) {
     return await _getReverseLifeFlowRawByIndex(index, count)
 }
 
-async function _addLifeFlowLog(lifeFlowResourceJson) {
-    await redisStore.rPush('lifeFlowQueueRaw', lifeFlowResourceJson)
+async function _getReverseLifeFlowLogsByIndex(index, count){
+    let startIndex = (-index - 1) - (count - 1)
+    var endIndex = -index - 1
+    const jsonArr = await redisStore.lRange('lifeFlowGenerateLog', startIndex, endIndex)
+    const objArr = jsonArr.map(json => JSON.parse(json));
+    return objArr
 }
 
-async function _addLifeFlow(lifeFlow, lifeFlowResource) {
+module.exports.getReverseLifeFlowLogsByIndex = async function(index, count) {
+    return await _getReverseLifeFlowLogsByIndex(index, count)
+}
+
+
+
+
+async function _addLifeFlowLog(lifeFlowResource,generateLog) {
+    const lifeFlowResourceJson = JSON.stringify(lifeFlowResource)
+    const generateLogJson = JSON.stringify(generateLog)
+    await redisStore.rPush('lifeFlowQueueRaw', lifeFlowResourceJson)
+    await redisStore.rPush('lifeFlowGenerateLog', generateLogJson)
+}
+
+async function _addLifeFlow(lifeFlow, lifeFlowResource, generateLog) {
     const json = JSON.stringify(lifeFlow)
     await redisStore.rPush('lifeFlowQueue', json)
     //生成一条生活流log
-    const lifeFlowResourceJson = JSON.stringify(lifeFlowResource)
-    _addLifeFlowLog(lifeFlowResourceJson)
+
+    _addLifeFlowLog(lifeFlowResource,generateLog)
 }
 
 // module.exports.addLifeFlow = async function(lifeFlow, lifeFlowResource) {
@@ -136,7 +158,7 @@ async function _getLifeFlowData(timeStamp, count){
             }
         }
     }while(!isFinish);
-    return result
+    return result.reverse()
 }
 
 
@@ -201,6 +223,8 @@ function toMinutes(seconds) {
     return `${minutes}分钟`;
 }
 
+let globalGenerateLog = []
+
 //生成生活流
 ////{userId: userId, userName: userName, content: userPieceTempDatas.content, address: address, achieveTime: achieveTime }
 async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
@@ -211,19 +235,22 @@ async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
     const achieveTime = lifeFlowResource.achieveTime
     const isSatisfyData = achieveTime < _achieveTime10
     const duration = toMinutes(lifeFlowResource.achieveTime)
+    globalGenerateLog = []
 
 
     //场景状态判定
     const statePrompt = openai_service.generateStatePrompt([userName], address, speech_contents)
     const state = await openai_service.generateContent(statePrompt)
+    
     if (!state) {
+        globalGenerateLog.push({name: "场景状态判定", prompt: statePrompt, result: "场景状态判定-生成失败"})
         return null
     }
+    globalGenerateLog.push({name: "场景状态判定", prompt: statePrompt, result: state})
     console.log("场景状态:",state)
 
     //上一个状态
     const lastStateMap = userLastStateCache[userId]
-
     //更新状态
     userLastStateCache[userId] = {lastState: state, lastDuration: duration}
 
@@ -235,8 +262,10 @@ async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
         const stateComparePrompt = openai_service.generateStateComparePrompt(lastStateMap.lastState, state)
         const stateCompare = await openai_service.generateContent(stateComparePrompt)
         if (!stateCompare) {
+            globalGenerateLog.push({name: "状态对比", prompt: stateComparePrompt, result: "状态对比-生成失败"})
             return null
         }
+        globalGenerateLog.push({name: "状态对比", prompt: stateComparePrompt, result: stateCompare})
         console.log("状态对比结果:",stateCompare)
         isSameState = stateCompare.charAt(0) === 'A'
     }
@@ -248,8 +277,10 @@ async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
         const summaryPrompt = openai_service.generateLongSummaryPrompt([userName], [lastStateMap.lastState,state], [lastStateMap.lastDuration,duration])
         const summary = await openai_service.generateContent(summaryPrompt)
         if (!summary) {
+            globalGenerateLog.push({name: "长总结", prompt: summaryPrompt, result: "长总结-生成失败"})
             return null
         }
+        globalGenerateLog.push({name: "长总结", prompt: summaryPrompt, result: summary})
         console.log("长总结:",summary)
 
         const life_flow_content = summary.trimStart();
@@ -265,7 +296,7 @@ async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
         if (!isSatisfyData) {
             const life_flow_content = state.trimStart();
             console.log("压缩内容:",life_flow_content)
-    
+            globalGenerateLog.push({name: "直接返回场景状态", prompt: "", result: life_flow_content})
             let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: currentTimeStamp}
     
             return result
@@ -275,19 +306,23 @@ async function _createLifeFlow(lifeFlowResource, currentTimeStamp){
         const summaryPrompt = openai_service.generateSummaryPrompt([userName], address, speech_contents, state)
         const summary = await openai_service.generateContent(summaryPrompt)
         if (!summary) {
+            globalGenerateLog.push({name: "个人总结", prompt: summaryPrompt, result: "个人总结-生成失败"})
             return null
         }
+        globalGenerateLog.push({name: "个人总结", prompt: summaryPrompt, result: summary})
         console.log("摘要:",summary)
 
         //压缩内容
         const compressContentPrompt = openai_service.generateCompressionPrompt(summary)
         const compressContent = await openai_service.generateContent(compressContentPrompt)
         if (!compressContent) {
+            globalGenerateLog.push({name: "压缩内容", prompt: compressContentPrompt, result: "风格化内容-生成失败"})
             return null
         }
         
         const life_flow_content = compressContent.trimStart();
         console.log("压缩内容:",life_flow_content)
+        globalGenerateLog.push({name: "压缩内容", prompt: compressContentPrompt, result: life_flow_content})
 
         let result = {onwerId: userId, title: userName, content: life_flow_content, timeStamp: currentTimeStamp}
         return result
@@ -314,7 +349,7 @@ async function _processLifeFlow(lifeFlowResource) {
     }
     lifeFlowUpdateTimeStamp = _lifeFlowUpdateTimeStamp
     console.log("生活流素材-处理完成:", lifeFlowMessage)
-    await _addLifeFlow(lifeFlowMessage, lifeFlowResource)
+    await _addLifeFlow(lifeFlowMessage, lifeFlowResource, Object.assign({}, globalGenerateLog))
 }
 
 
